@@ -1,73 +1,127 @@
 
-def check_db_column(column_name)
+$db_column_rules = {'MISSENGAGE' => [['MISPAR']],
+				    'CFCHILD'    => [['CSCHILD', 'AOCHILD']],
+				    'CFYOUTH'    => [['CSYOUTH', 'AOYOUTH']],
+				    'CFOADLT'    => [['CSADULTS', 'CSLEAD', 'AOADULTS', 'AOLEAD']],
+				    'ONGOCLASS'  => [['CHOTH', 'YOOTH', 'YOADULT']],
+				    'OUTSRVD'    => [['TOTSERV']],
+				    'VALPROP'    => [['VALCHUR', 'VALPARS']],
+				    'GENADV'     => [['GASb'], ['GASWSS']],
+				    'WSSPEC'     => [['WSS']],
+				    'OTHDIRECT'  => [['BENOTHER']],
+				    'TOTPAST'    => [['PASTHOUS', 'ASSCHOUS'], ['HOUSUTIL']],
+				    'TOTREMB'    => [['PASTREMB', 'ASSCREMB'], ['REIMBURS']],
+				    'TOTCASH'    => [['OTHCASHA', 'OTHCASHb'], ['OTHCASH']],
+				    'DIACCOMP'   => [['DEACOMP']],
+				    'NUMBAPT'    => [['BAPTCHILD', 'BAPTADULT']],
 
-db_handled_cols = ['year', 				# year is read from the filename
-			   	   'MISSENGAGE',		# MISPAR in 2008-2012, not tracked before 2009
-				   'CFCHILD',			# CSCHILD in 2000-2004, CSCHILD + AOCHILD in 2005-2008
-				   'CFYOUTH',			# CSYOUTH in 2000-2004, CSCHILD + AOCHILD in 2005-2008
-				   'CFOADLT',			# CSADULTS + CSLEAD in 2000-2004, 
-				   						# 		CSADULTS + CSLEAD + AOADULTS + AOLEAD in 2005-2008
-				   'ONGOCLASS',			# CHOTH + YOOTH + YOADULT in 2005-2008, not tracked before 2005
-				   'OUTSRVD',			# TOTSERV in 2005-2008, not tracked before 2005
-				   'VALPROP',			# VALCHUR + VALPARS before 2008
-				   'GENADV',			# GASb in 2005-2008, GASWSS before 2004
-				   'WSSPEC',			# WSS in 2006-2008, not tracked before 2007
-				   'OTHDIRECT', 		# BENOTHER in pre-2008
-				   'TOTPAST',			# PASTHOUS + ASSCHOUS in 2005-2008, HOUSUTIL in 2000-2004
-				   'TOTREMB',			# PASTREMB + ASSCREMB in 2005-2008, REIMBURS in 2000-2004
-				   'TOTCASH',			# OTHCASHA + OTHCASHb in 2005-2008, OTHCASH in 2000-2004
-				   'DIACCOMP',			# DEACOMP before 2009
-				   'NUMBAPT',			# BAPTCHILD + BAPTADULT after 2012
-]
+# Don't print warning messages about the following column headers
+					'BAPTCHILD'  => [],
+			        'BAPTADULT'  => [],
+		  		    'PENBILLED'  => [],
+				    'RECCOR'     => [],
+				    'REMCOR'     => [],
+				    'CFYADLT'    => [],
+				    'SHORTCLASS' => [],
+				    'VBSPART'    => [],			
+				    'CSCLASS'    => [], 			
+				    'DAYSRVD'    => [],			
+				    'UMDIRECT'   => [],			
+				    'HLTHBILLED' => [], 		
+				    'DCNCOMP'    => [],
+				    'RENTAL'     => [],			
+				    'MEMBMR'     => [],			
+				    'UMVIM'      => [],			
+				    'UMVIMPAR'   => [],			
+				    'GENCHROFa'  => [],			
+				    'GENCHROFb'  => [],			
+				    'GENCHROFc'  => [],			
+				    'GENCHROFd'  => [],			
+				    'GENCHROFe'  => [],			
+				    'GENCHROFf'  => [],			
+				    'NUMPLEDG'   => [],			
+				    'BENOTHAa'   => [],			
+				    'BENOTHAb'   => [],			
+				    'BENOTHAc'   => [],			
+				    'BENOTHAd'   => [],			
+				    'BENOTHAe'   => [],			
+				    'BENOTHAf'   => [],			
+				    'BENOTHAg'   => [],			
+				    'CAPFUNa'    => [],			
+				    'CAPFUNb'    => [],
+				    'CAPFUNc'    => [],
+				    'CAPFUNd'    => [],			
+				    'FUNDSCRa'   => [],
+				    'FUNDSCRb'   => [],
+				    'FUNDSCRc'   => [],	
+				    'BENOTHA'    => [],		
+				    'MEMBFEM'    => [],			
+				    'MEMBMALE'   => [],			
+ 
+				    'CSATTSHT'   => [],			
+				    'UMYFMEMB'   => [],			
+				    'UMYFPROJ'   => [],			
+				    'UMWTREAS'   => [],			
 
-db_ignored_cols = ['BAPTCHILD',			# not tracked before 2012
-			       'BAPTADULT',			# not tracked before 2012	
-		  		   'PENBILLED',			# not tracked before 2011 
-				   'RECCOR',			# not tracked before 2009
-				   'REMCOR',			# not tracked before 2009
-				   'CFYADLT',			# not tracked before 2009
-				   'SHORTCLASS',		# not tracked before 2009
-				   'VBSPART',			# not tracked before 2009
-				   'CSCLASS', 			# not tracked before 2009
-				   'DAYSRVD',			# not tracked before 2009
-				   'UMDIRECT',			# not tracked before 2009
-				   'HLTHBILLED', 		# not tracked before 2009
-				   'CAPFUNd',			# not tracked before 2009
-				   'DCNCOMP',			# not tracked before 2009
-				   'RENTAL',			# not tracked before 2006
-				   'MEMBMR',			# not tracked before 2005
-				   'UMVIM',				# not tracked before 2005
-				   'UMVIMPAR',			# not tracked before 2005
-				   'GENCHROFa',			# not tracked before 2005
-				   'GENCHROFb',			# not tracked before 2005
-				   'GENCHROFc',			# not tracked before 2005
-				   'GENCHROFd',			# not tracked before 2005
-				   'GENCHROFe',			# not tracked before 2005
-				   'GENCHROFf',			# not tracked before 2005
-				   'NUMPLEDG',			# not tracked before 2005
-				   'BENOTHAa',			# not tracked before 2005
-				   'BENOTHAb',			# not tracked before 2005
-				   'BENOTHAc',			# not tracked before 2005
-				   'BENOTHAd',			# not tracked before 2005
-				   'BENOTHAe',			# not tracked before 2005
-				   'BENOTHAf',			# not tracked before 2005
-				   'BENOTHAg',			# not tracked before 2005
-				   'CAPFUNa',			# not tracked before 2005
-				   'CAPFUNb',			# not tracked before 2005
-				   'CAPFUNc',			# not tracked before 2005
-				   'FUNDSCRa',			# not tracked before 2005
-				   'FUNDSCRb',			# not tracked before 2005
-				   'FUNDSCRc',			# not tracked before 2005
-				   'BENOTHA',			# not tracked before 2002
-				   'MEMBFEM',			# not tracked before 2001
-				   'MEMBMALE',			# not tracked before 2001
 
-				   'CSATTSHT',			# not tracked after 2008
-				   'UMYFMEMB',			# not tracked after 2008
-				   'UMYFPROJ',			# not tracked after 2008
-				   'UMWTREAS',			# not tracked after 2007
-]
 
-	return (db_handled_cols.include? column_name or
-			db_ignored_cols.include? column_name)
+					'year'       => [],
+					'computed_values' => ['MEMBTOT', 'CFTOTAL', 'GRANDTOT', 'ANNOPP', 'CAPFUN', 'FUNDSCR'],
+					'ignored'    => ['church_id', 'name', 'district', 'city', 'state']
+}
+
+def check_xls_cols(xls_cols, db_cols)
+	xls_cols.keys.each do |key|
+		unless db_cols.include? key or $db_column_rules.values.flatten.include? key
+			print "Spreadsheet column #{key} is not present in database -- values will be ignored.\n"
+		end
+	end
 end
+
+def check_db_cols(xls_cols, db_cols)
+	db_cols.each do |col|
+		unless xls_cols.keys.include? col or $db_column_rules.keys.include? col
+			print "Database column #{col} is not present in spreadsheet -- values will be NULL.\n"
+		end
+	end
+end
+
+def sumnil(*summands)
+	summation = nil
+	summands.each do |summand|
+		next unless summand
+
+		if summation.nil? then summation = summand
+		else summation += summand
+		end
+	end
+	return summation
+end
+
+def cell_to_int(row, label, xls_cols)
+	return row[xls_cols[label]].to_i unless row[xls_cols[label]].nil?
+end
+
+def get_column_value(row, column_name, xls_cols)
+
+	value = nil
+	if xls_cols.include? column_name
+		value = cell_to_int(row, column_name, xls_cols)
+	elsif $db_column_rules[column_name]
+		$db_column_rules[column_name].each do |match|
+			altval = nil
+			match.each do |col|
+				if xls_cols.include? col then
+					altval = sumnil(altval, cell_to_int(row, col, xls_cols))
+				end
+			end
+			if altval then
+				value = altval
+				break
+			end
+		end
+	end
+	return value
+end
+
+
