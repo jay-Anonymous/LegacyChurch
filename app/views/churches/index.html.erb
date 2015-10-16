@@ -1,0 +1,16 @@
+
+<h1>Church List</h1>
+
+<table>
+	<tr><th>Name</th> <th>ID</th> <th>District</th> <th>City</th> <th>State</th></tr>
+	<% @churches.each do |church| %>
+		<tr>
+			<td> <%= link_to church.name, church_path(church) %></td> 
+			<%= "<td>#{church.id}</td>".html_safe %>
+			<%= "<td>#{church.district}</td>".html_safe %>
+			<%= "<td>#{church.city}</td>".html_safe %>
+			<%= "<td>#{church.state}</td>".html_safe %>
+		</tr>
+	<% end %>
+</table>
+

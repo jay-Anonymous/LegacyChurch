@@ -1,0 +1,21 @@
+
+<h1><%= "#{@church.name} (#{@church.id})" %></h1>
+
+<table>
+	<tr>
+		<th></th>
+		<% @church.church_data.columns.map(&:name).each do |key| 
+			next if (key == "year" or key == "church_id") %>
+			<%= "<th>#{key}</th>".html_safe %>
+		<% end %>
+	</tr>
+	<% @church.church_data.each do |data| %>
+		<tr>
+			<%= "<td>#{data.year}</td>".html_safe %>
+			<% @church.church_data.columns.map(&:name).each do |key| 
+				next if (key == "year" or key == "church_id") %>
+				<%= "<td> #{data.send key} </td>".html_safe %>
+			<% end %>
+		</tr>
+	<% end %>
+</table>
