@@ -1,2 +1,30 @@
-<h1>Welcome#index</h1>
-<p>Find me in app/views/welcome/index.html.erb</p>
+<h1>Legacy Church Project</h1>
+
+<%= form_tag do %>
+	<p>Show me the
+	<%= number_field :church, :number, in:1..100, step: 1 %>
+	churches with the 
+	<%= select :church, :order, [["Highest", "desc"], ["Lowest", "asc"]] %>
+	<%= select :church, :property, ChurchData.get_all_properties(except: [:year, :church_id]) %>
+	in
+	<%= select :church, :year, 2000..2014 %>
+	</p>
+
+	<%= submit_tag("Go!") %>
+<% end %>
+
+<% if !@churches.nil? then %>
+<table>
+	<tr><th>Name</th> <th>ID</th> <th>District</th> <th>City</th> <th>State</th></tr>
+	<% @churches.each do |church| %>
+		<tr>
+			<td> <%= link_to church.name, church_path(church) %></td> 
+			<%= "<td>#{church.id}</td>".html_safe %>
+			<%= "<td>#{church.district}</td>".html_safe %>
+			<%= "<td>#{church.city}</td>".html_safe %>
+			<%= "<td>#{church.state}</td>".html_safe %>
+		</tr>
+	<% end %>
+</table>
+<% end %>
+

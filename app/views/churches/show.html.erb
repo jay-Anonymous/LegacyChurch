@@ -4,18 +4,18 @@
 <table>
 	<tr>
 		<th></th>
-		<% @church.church_data.columns.map(&:name).each do |key| 
-			next if (key == "year" or key == "church_id") %>
+		<% ChurchData.get_all_properties(except: [:year, :church_id]).each do |key| %>
 			<%= "<th>#{key}</th>".html_safe %>
 		<% end %>
 	</tr>
 	<% @church.church_data.each do |data| %>
 		<tr>
 			<%= "<td>#{data.year}</td>".html_safe %>
-			<% @church.church_data.columns.map(&:name).each do |key| 
-				next if (key == "year" or key == "church_id") %>
+			<% ChurchData.get_all_properties(except: [:year, :church_id]).each do |key| %>
 				<%= "<td> #{data.send key} </td>".html_safe %>
 			<% end %>
 		</tr>
 	<% end %>
 </table>
+
+<%= link_to "Back", churches_path %>
