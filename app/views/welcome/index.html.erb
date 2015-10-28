@@ -1,15 +1,7 @@
 <h1>Legacy Church Project</h1>
 
 <%= form_tag do %>
-	<p>Show me the
-	<%= number_field :church, :number, in:1..100, step: 1 %>
-	churches with the 
-	<%= select :church, :order, [["Highest", "desc"], ["Lowest", "asc"]] %>
-	<%= select :church, :property, ChurchData.get_all_properties(except: [:year, :church_id]) %>
-	in
-	<%= select :church, :year, 2000..2014 %>
-	</p>
-
+	<%= display(MaxMinQuery, ':church') %>
 	<%= submit_tag("Go!") %>
 <% end %>
 

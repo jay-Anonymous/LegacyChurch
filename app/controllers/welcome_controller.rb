@@ -3,8 +3,7 @@ class WelcomeController < ApplicationController
   end
 
   def show
-	  @churches = Church.joins(:church_data).order(
-		  params[:church][:property] + " " + params[:church][:order]).limit(params[:church][:number])
+	  @churches = params[:query_type].constantize.execute(params[:church])
 	  render 'index'
   end
 end
