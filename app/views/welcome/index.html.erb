@@ -1,13 +1,16 @@
 <h1>Legacy Church Project</h1>
 
 <%= form_tag do %>
-	<%= display(MaxMinQuery, ':church') %>
+	<% form_data = (@params and @params[:query_type] == 'MaxMinQuery') ? @params[:church] : [] %>
+	<%= display(MaxMinQuery, ':church', form_data) %>
 	<%= submit_tag("Go!") %>
 <% end %>
 
 <% if !@churches.nil? then %>
 <table>
-	<tr><th>Name</th> <th>ID</th> <th>District</th> <th>City</th> <th>State</th></tr>
+	<tr><th>Name</th> <th>ID</th> <th>District</th> <th>City</th> <th>State</th>
+		<th><%= @params[:church][:category] %> </th>
+	</tr>
 	<% @churches.each do |church| %>
 		<tr>
 			<td> <%= link_to church.name, church_path(church) %></td> 
@@ -15,6 +18,7 @@
 			<%= "<td>#{church.district}</td>".html_safe %>
 			<%= "<td>#{church.city}</td>".html_safe %>
 			<%= "<td>#{church.state}</td>".html_safe %>
+			<td> <%= church.send @params[:church][:category] %></td>
 		</tr>
 	<% end %>
 </table>
