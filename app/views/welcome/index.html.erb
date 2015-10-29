@@ -1,26 +1,31 @@
 <h1>Legacy Church Project</h1>
 
-<%= form_tag do %>
-	<% form_data = (@params and @params[:query_type] == 'MaxMinQuery') ? @params[:church] : nil %>
-	<%= display(MaxMinQuery, ':church', form_data) %>
-	<%= submit_tag("Go!") %>
-<% end %>
+<% queries = Queries::Base.get_all %>
+<% query_type = @params[:query_type] unless !@params %>
 
-<% if !@churches.nil? then %>
-<table>
-	<tr><th>Name</th> <th>ID</th> <th>District</th> <th>City</th> <th>State</th>
-		<th><%= @params[:church][:category] %> </th>
-	</tr>
-	<% @churches.each do |church| %>
-		<tr>
-			<td> <%= link_to church.name, church_path(church) %></td> 
-			<%= "<td>#{church.id}</td>".html_safe %>
-			<%= "<td>#{church.district}</td>".html_safe %>
-			<%= "<td>#{church.city}</td>".html_safe %>
-			<%= "<td>#{church.state}</td>".html_safe %>
-			<td> <%= church.send @params[:church][:category] %></td>
-		</tr>
+<% queries.each do |q| %>
+	<%= form_tag do %>
+		<% form_data = @params[:church] unless (!@params or q != query_type.constantize) %>
+		<%= display(q, ':church', form_data) %>
+		<%= submit_tag('Go!') %>
 	<% end %>
-</table>
+
+	<% if !@churches.nil? and q == query_type.constantize then %>
+	<table>
+		<tr><th>Name</th> <th>ID</th> <th>District</th> <th>City</th> <th>State</th>
+			<th><%= @params[:church][:category] %> </th>
+		</tr>
+		<% @churches.each do |church| %>
+			<tr>
+				<td> <%= link_to church.name, church_path(church) %> </td> 
+				<td> <%= church.id %> </td>
+				<td> <%= church.district %> </td>
+				<td> <%= church.city %> </td>
+				<td> <%= church.state %> </td>
+				<td> <%= church.send @params[:church][:category] %></td>
+			</tr>
+		<% end %>
+	</table>
+	<% end %>
 <% end %>
 

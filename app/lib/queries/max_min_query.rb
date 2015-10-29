@@ -1,4 +1,6 @@
 
+module Queries
+
 class MaxMinQuery
 	Template = 'Show me the :limit churches with the :order :category in :year.'
 	Params = {
@@ -7,13 +9,14 @@ class MaxMinQuery
 			  :category => ['select_tag', ChurchData.get_all_properties(except: [:year, :church_id])],
 			  :year => ['select_tag', 2000..2014]
 		     }
-	def new
-	end
 
 	def self.execute(params)
-	  Church.joins(:church_data).select('*').where(church_data: {year: params[:year]}).
-		  order( params[:category] + " " + params[:order]).limit(params[:limit])
+	    Church.joins(:church_data).select("church.*, #{params[:category]}").
+			where(church_data: {year: params[:year]}).
+		    order(params[:category] + " " + params[:order]).limit(params[:limit])
 	end
+end
+
 end
 
 
