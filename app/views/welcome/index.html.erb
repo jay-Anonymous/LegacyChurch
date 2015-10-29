@@ -1,7 +1,7 @@
 <h1>Legacy Church Project</h1>
 
 <%= form_tag do %>
-	<% form_data = (@params and @params[:query_type] == 'MaxMinQuery') ? @params[:church] : [] %>
+	<% form_data = (@params and @params[:query_type] == 'MaxMinQuery') ? @params[:church] : nil %>
 	<%= display(MaxMinQuery, ':church', form_data) %>
 	<%= submit_tag("Go!") %>
 <% end %>
