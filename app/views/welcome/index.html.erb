@@ -2,6 +2,7 @@
 
 <% queries = Queries::Base.get_all %>
 <% query_type = @params[:query_type] unless !@params %>
+<% raw_data = [] %>
 
 <% queries.each do |q| %>
 	<%= form_tag do %>
@@ -11,11 +12,14 @@
 	<% end %>
 
 	<% if !@churches.nil? and q == query_type.constantize then %>
-	<table>
+
+	<table class="data-table">
 		<tr><th>Name</th> <th>ID</th> <th>District</th> <th>City</th> <th>State</th>
 			<th><%= @params[:church][:category] %> </th>
 		</tr>
+		<% count = 0 %>
 		<% @churches.each do |church| %>
+			<% if count < 10 %>
 			<tr>
 				<td> <%= link_to church.name, church_path(church) %> </td> 
 				<td> <%= church.id %> </td>
@@ -24,8 +28,19 @@
 				<td> <%= church.state %> </td>
 				<td> <%= church.send @params[:church][:category] %></td>
 			</tr>
+			<% count += 1 %> <% end %>
+			<% raw_data.push church.send @params[:church][:category] %>
 		<% end %>
 	</table>
+
+	<svg class="chart">
+	</svg>
+
 	<% end %>
 <% end %>
+
+<script type="text/javascript">
+show_histogram(<%= raw_data %>);
+</script>
+
 

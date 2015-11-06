@@ -10,4 +10,5 @@ class WelcomeController < ApplicationController
 	  end
 	  render 'index'
   end
+
 end

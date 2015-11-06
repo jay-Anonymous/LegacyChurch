@@ -1,3 +1,22 @@
 // Place all the styles related to the welcome controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+
+.data-table {float: left;}
+.chart {float: right; margin-right:150px;}
+.chart rect {
+  fill: steelblue;
+}
+
+.chart text {
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crisp-edges;
+}
+
