@@ -24,6 +24,7 @@
 var churches = undefined;
 $(document).ready(function() {
 	$(".query").on("ajax:success", function(e, data, status, xhr) {
+		$(".chart").empty();
 		churches = xhr.responseText;
 		show_histogram(churches);
 	}).on("ajax:error", function (e, xhr, status, error) {
