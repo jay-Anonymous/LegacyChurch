@@ -33,9 +33,10 @@ function show_histogram(church_data) {
 
 	var raw = JSON.parse(church_data);
 	var keys = Object.keys(raw[0]);
-	var index = keys[keys.length - 1];
+	var f_index = function(el) { return el[keys[keys.length - 1]]; };
+	var format = d3.format(",.0f");
 	var data = d3.layout.histogram()
-		.value(function(d) { return d[index]; })
+		.value(f_index)
 		.bins(get_hist_thresholds)(raw);
 
 	var margin = {top: 15, right: 20, bottom: 30, left: 5},
@@ -58,28 +59,78 @@ function show_histogram(church_data) {
 		.scale(x)
 		.orient("bottom")
 		.tickValues(d3.range(data[0].x, data[data.length - 1].x + data[0].dx, data[0].dx))
-		.tickFormat(d3.format(",.0f"))
+		.tickFormat(function(tick) {
+			tick = format(tick);
+			if (tick == format(data[data.length - 1].x + data[0].dx))
+				tick = "";
+			else if (tick == format(data[data.length - 1].x))
+				tick = "≥" + tick;
+			return tick;
+		});
 
 	var bar = chart.selectAll("g")
-	  .data(data)
-	  .enter().append("g")
-	  .attr("transform", function(d, i) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+	    .data(data)
+	    .enter().append("g")
+	    .attr("class", "bar")
+	    .attr("transform", function(d, i) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; })
+		.on("click", function(data) {
+			d3.select(".selected").attr("class", "bar");
+			d3.select(this).attr("class", "bar selected");
+			display_selected_churches(data);
+		});
 
 	bar.append("rect")
-	  .attr("x", 1)
-	  .attr("width", x(data[0].dx) - 1)
-	  .attr("height", function(d) { return height - y(d.y); })
+	    .attr("x", 1)
+	    .attr("width", x(data[0].dx) - 1)
+	    .attr("height", function(d) { return height - y(d.y); })
 
 	bar.append("text")
-	  .attr("x", x(data[0].dx) / 2)
-	  .attr("y", -10)
-	  .attr("dy", ".75em")
-	  .text(function(d) { return d.y; });
+	    .attr("x", x(data[0].dx) / 2)
+	    .attr("y", -10)
+	    .attr("dy", ".75em")
+	    .text(function(d) { return d.y; });
 
 	chart.append("g")
-	  .attr("class", "x axis")
-	  .attr("transform", "translate(0," + height + ")")
-	  .call(xAxis);
+	    .attr("class", "x axis")
+	    .attr("transform", "translate(0," + height + ")")
+	    .call(xAxis);
+
+	var med_value = median(raw.map(f_index).sort());
+	chart.append("line")
+		.attr("x1", x(med_value))
+		.attr("x2", x(med_value))
+		.attr("y1", y(0))
+		.attr("y2", y(height))
+		.attr("stroke-width", 1)
+		.attr("stroke-dasharray", "10,10")
+		.attr("stroke", "black");
+
+	chart.append("text")
+		.attr("x", x(med_value) + 5)
+		.attr("y", 0)
+		.attr("class", "median")
+		.attr("text-anchor", "start")
+		.text(d3.format(",.0f")(med_value));
 }
 
+function display_selected_churches(data) {
+	$(".data-table").empty();
 
+	var keys = Object.keys(data[0]);
+	keys.forEach(function(el) {
+		$(".data-table").append("<th>" + el + "</th>\n");
+	});
+
+	data.forEach(function(el) {
+		row = "<tr>"
+		keys.forEach(function(key) {
+			row += "<td>";
+			if (key == "id") 
+				row += "<a href=\"/churches/" + el[key] + "\">" + el[key] + "</a>";
+			else row += el[key];
+			row += "</td>";
+		});
+		row += "</tr>"
+		$(".data-table").append(row);
+	});
+}

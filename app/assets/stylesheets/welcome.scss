@@ -3,16 +3,13 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 
-.data-table {float: left;}
-.chart {float: right; margin-right:150px;}
-.chart rect {
-  fill: steelblue;
-}
+.bar { fill: steelblue; }
+.bar:hover {fill: sandybrown; }
+.selected, .selected:hover { fill: orange; }
 
-.chart text {
-  font: 10px sans-serif;
-  text-anchor: middle;
-}
+text { font: 10px sans-serif; fill: black; }
+.bar text, .axis text { text-anchor: middle; }
+.median text { text-anchor: start; }
 
 .axis path, .axis line {
   fill: none;
