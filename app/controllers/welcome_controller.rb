@@ -1,4 +1,5 @@
 class WelcomeController < ApplicationController
+  respond_to :html, :json
 
   def index
   end
@@ -8,7 +9,10 @@ class WelcomeController < ApplicationController
 	  @params = params.permit(:query_type).tap do |whitelisted|
 		  whitelisted[:church] = params[:church]
 	  end
-	  render 'index'
+	  respond_with @churches do |format|
+		  format.html { render 'index' }
+		  format.json { render json: @churches }
+	  end
   end
 
 end

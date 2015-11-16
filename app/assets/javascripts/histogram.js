@@ -1,39 +1,45 @@
 
-function get_hist_thresholds(raw, fence_t) {
-	fence_t = fence_t || 2;
+function get_hist_thresholds(raw, index) {
+	var fence_t = 2;
 
-	var lower_fence = q1(raw) - fence_t * iqr(raw);
-	var upper_fence = q3(raw) + fence_t * iqr(raw);
+	var data = [];
+	raw.forEach(function (entry) {
+		data.push(entry[index]);
+	});
+	data.sort;
+
+	var lower_fence = q1(data) - fence_t * iqr(data);
+	var upper_fence = q3(data) + fence_t * iqr(data);
 
 	for (i = 0; i < raw.length; i++) {
-		if (raw[i] > lower_fence) break;
-		raw[i] = lower_fence;
+		if (data[i] > lower_fence) break;
+		data[i] = lower_fence;
 	}
 
 	for (i = raw.length - 1; i >= 0; i--) {
-		if (raw[i] < upper_fence) break;
-		raw[i] = upper_fence;
+		if (data[i] < upper_fence) break;
+		data[i] = upper_fence;
 	}
 
-	var thresholds = [raw[0]];
+	var thresholds = [data[0]];
 
-	var bin_size = (2 * iqr(raw)) / Math.pow(raw.length, 1/3);
-	var curr = raw[0] + bin_size;
+	var bin_size = (2 * iqr(data)) / Math.pow(data.length, 1/3);
+	var curr = data[0] + bin_size;
 
 	while (curr < upper_fence) {
 		thresholds.push(curr);
 		curr += bin_size;
 	}
-	thresholds.push(raw[raw.length - 1]);
+	thresholds.push(data[data.length - 1]);
 
 	return thresholds;
 }
 
-function show_histogram(raw) {
+function show_histogram(church_data, index) {
 
-	raw.sort
+	var raw = JSON.parse(church_data);
 	var data = d3.layout.histogram()
-		.bins(get_hist_thresholds(raw))(raw);
+		.bins(get_hist_thresholds)(raw, index);
 
 	var margin = {top: 15, right: 20, bottom: 30, left: 5},
 		width = 600 - margin.left - margin.right,
