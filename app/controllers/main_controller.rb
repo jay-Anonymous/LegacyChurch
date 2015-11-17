@@ -1,10 +1,7 @@
-class WelcomeController < ApplicationController
+class MainController < ApplicationController
   respond_to :html, :json
 
-  def index
-  end
-
-  def show
+  def respond_to
 	  @churches = params[:query_type].constantize.execute(params[:church])
 	  @params = params.permit(:query_type).tap do |whitelisted|
 		  whitelisted[:church] = params[:church]

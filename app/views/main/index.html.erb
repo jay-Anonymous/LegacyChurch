@@ -5,7 +5,7 @@
 <% raw_data = [] %>
 
 <% queries.each do |q| %>
-	<%= form_tag 'index.json', remote: true, class: 'query' do %>
+	<%= form_tag 'respond_to.json', remote: true, class: 'query' do %>
 		<% form_data = @params[:church] unless (!@params or q != query_type.constantize) %>
 		<%= display(q, ':church', form_data) %>
 		<%= submit_tag('Go!') %>

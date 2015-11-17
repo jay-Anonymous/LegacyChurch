@@ -1,7 +1,7 @@
 
 module Queries
 
-class MaxMinQuery
+class BasicQuery
 	Template = 'Show me the :category data for :year.'
 	Params = {
 			  :category => ['select_tag', ChurchData.get_all_properties(except: [:year, :church_id])],

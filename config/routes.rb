@@ -1,13 +1,10 @@
 Rails.application.routes.draw do
-  get 'welcome/index'
-  post 'welcome/index', to: 'welcome#show'
 
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
+  get "/", to: 'main#index', as: "root"
+  post "/respond_to", to: "main#respond_to"
 
   # You can have the root of your site routed with "root"
   resources :churches, only: [:index, :show]
-  root 'welcome#index'
 
 
   # Example of regular route:

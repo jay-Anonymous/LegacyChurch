@@ -1,4 +1,4 @@
-module WelcomeHelper
+module MainHelper
 	def display(query, name, form_data)
 		html = '<p>' + query::Template + '</p>'
 		query::Params.each do |key, value|
