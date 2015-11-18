@@ -17,3 +17,9 @@ text { font: 10px sans-serif; fill: black; }
   shape-rendering: crisp-edges;
 }
 
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 0.5px;
+}
+

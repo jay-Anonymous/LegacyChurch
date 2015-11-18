@@ -1,3 +1,4 @@
+
 <h1>Legacy Church Project</h1>
 
 <% queries = Queries::Base.get_all %>
@@ -5,28 +6,34 @@
 <% raw_data = [] %>
 
 <% queries.each do |q| %>
+
+	<div id="<%= to_id(q) %>" data-function="show_<%= ActiveSupport::Inflector.underscore(to_id(q)) %>">
 	<%= form_tag 'respond_to.json', remote: true, class: 'query' do %>
 		<% form_data = @params[:church] unless (!@params or q != query_type.constantize) %>
 		<%= display(q, ':church', form_data) %>
 		<%= submit_tag('Go!') %>
 	<% end %>
 
+	<svg class="chart" width="0" height="0">
+	</svg>
+
+	<table class="data-table">
+	</table>
+
+	</div>
 
 <% end %>
-
-<svg class="chart">
-</svg>
-
-<table class="data-table">
-</table>
 
 <script type="text/javascript">
 var churches = undefined;
 $(document).ready(function() {
 	$(".query").on("ajax:success", function(e, data, status, xhr) {
-		$(".chart").empty();
+		var parentId = $(this).closest("div").attr("id");
+		var funcName = $("#" + parentId).data("function");
+		$("#" + parentId + " .chart").empty();
+		$("#" + parentId + " .data-table").empty();
 		churches = xhr.responseText;
-		show_histogram(churches);
+		window[funcName](churches, parentId);
 	}).on("ajax:error", function (e, xhr, status, error) {
 		$(".data-table").append("<p>ERROR</p>");
 	}); 

@@ -9,6 +9,14 @@ module MainHelper
 		return html.html_safe
 	end
 
+	def to_id(id)
+		id = ActiveSupport::Inflector.demodulize(id)
+		id = ActiveSupport::Inflector.underscore(id)
+		id = ActiveSupport::Inflector.dasherize(id)
+		return id
+	end
+
+
 	def get_form_element(tag_name, name, key, args, form_data)
 		str = "#{tag_name} 'church[#{key}]',"
 		case tag_name
