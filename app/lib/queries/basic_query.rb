@@ -2,17 +2,17 @@
 module Queries
 
 class BasicQuery
-	Template = 'Show me the :category data for :year.'
+	Template = 'Show me the :property data for :year.'
 	Params = {
-			  :category => ['select_tag', ChurchData.get_all_properties(except: [:year, :church_id])],
+			  :property => ['select_tag', ChurchData.get_all_properties(except: [:year, :church_id])],
 			  :year => ['select_tag', 2000..2014]
 		     }
 
 	def self.execute(params)
-	    Church.joins(:church_data).select("churches.*, #{params[:category]}")
+	    Church.joins(:church_data).select("churches.*, #{params[:property]}")
 			.where(church_data: {year: params[:year]})
-			.where.not(church_data: {params[:category] => nil })
-		    .order(params[:category] + ' asc')
+			.where.not(church_data: {params[:property] => nil })
+		    .order(params[:property] + ' asc')
 	end
 end
 

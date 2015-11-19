@@ -3,23 +3,32 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 
-.bar { fill: steelblue; }
-.bar:hover {fill: sandybrown; }
-.selected, .selected:hover { fill: orange; }
-
+/* Generic elements */
 text { font: 10px sans-serif; fill: black; }
-.bar text, .axis text { text-anchor: middle; }
-.median text { text-anchor: start; }
 
-.axis path, .axis line {
+.axis path, .axis line 
+{
   fill: none;
   stroke: #000;
   shape-rendering: crisp-edges;
 }
 
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 0.5px;
+.data-details tr td, .data-details th { padding-right: 30px; }
+
+/* Histogram */
+.chart-element.bar { fill: steelblue; }
+.chart-element.bar:hover {fill: sandybrown; }
+.chart-element.bar.selected, .chart-element.bar.selected:hover { fill: orange; }
+
+.bar text, .axis text { text-anchor: middle; }
+.median text { text-anchor: start; }
+
+/* Time series */
+.chart-element.line { fill: none; stroke: steelblue; stroke-width: 0.5px; }
+.chart-element.line:hover {stroke: sandybrown; stroke-width: 3px; }
+.chart-element.line.selected, .chart-element.line.selected:hover 
+{ 
+	stroke: orange; 
+	stroke-width: 3px; 
 }
 

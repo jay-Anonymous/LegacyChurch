@@ -17,8 +17,8 @@
 	<svg class="chart" width="0" height="0">
 	</svg>
 
-	<table class="data-table">
-	</table>
+	<div class="data-details">
+	</div>
 
 	</div>
 
@@ -28,12 +28,12 @@
 var churches = undefined;
 $(document).ready(function() {
 	$(".query").on("ajax:success", function(e, data, status, xhr) {
-		var parentId = $(this).closest("div").attr("id");
-		var funcName = $("#" + parentId).data("function");
-		$("#" + parentId + " .chart").empty();
-		$("#" + parentId + " .data-table").empty();
+		var parentId = "#" + $(this).closest("div").attr("id");
+		var funcName = $(parentId).data("function");
+		$(parentId + " .chart").empty();
+		$(parentId + " .data-table").empty();
 		churches = xhr.responseText;
-		window[funcName](churches, parentId);
+		window[funcName](churches, $(parentId + " #church_property").val(), parentId);
 	}).on("ajax:error", function (e, xhr, status, error) {
 		$(".data-table").append("<p>ERROR</p>");
 	}); 
