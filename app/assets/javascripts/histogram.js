@@ -1,5 +1,5 @@
 
-function show_basic_query(church_data_json, property, id) {
+function show_basic_query(church_data_json, property, id, args) {
 
 	var church_data = parseData(church_data_json);
 	var binnedData = d3.layout.histogram()
@@ -66,8 +66,9 @@ function show_basic_query(church_data_json, property, id) {
 }
 
 function display_bin(data, id) {
+	$(id + " .query-results .data-details").remove();
+	$(id + " .query-results").append('<div class="data-details">');
 	var details = $(id + " .data-details");
-	details.empty();
 	details.append("<table>");
 
 	var keys = Object.keys(data[0]);
@@ -88,6 +89,7 @@ function display_bin(data, id) {
 		details.append(row);
 	});
 	details.append("</table>");
+	details.append("</div>");
 }
 
 function get_hist_thresholds(range, values) {

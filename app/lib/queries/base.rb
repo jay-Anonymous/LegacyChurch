@@ -11,6 +11,16 @@ class Base
 	end
 end
 
+class AbstractQuery
+	def self.js()
+		return ''
+	end
+
+	def self.js_args()
+		return ''
+	end
+end
+
 end
 
 

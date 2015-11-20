@@ -1,7 +1,7 @@
 
 module Queries
 
-class TimeSeriesQuery
+class TimeSeriesQuery < AbstractQuery
 	Template = 'Show me the :property data from :year1 to :year2, grouped by :grouping.'
 	Params = {
 			  :property => ['select_tag', ChurchData.get_all_properties(except: [:year, :church_id])],
@@ -21,12 +21,16 @@ class TimeSeriesQuery
 <<END
 <script type="text/javascript">
 	$("#church_grouping").change(function(evt) {
-		if ($("#time-series-query .chart").height() != 0) {
+		if (!$("#time-series-query .query-results").is(":empty")) {
 			$("#time-series-query .query").submit()
 		}
 	});
 </script>
 END
+	end
+
+	def self.js_args()
+		'#church_grouping'
 	end
 
 end

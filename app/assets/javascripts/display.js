@@ -16,7 +16,11 @@ function initChart(id, xScale, yScale, xTickValues, xTickFormat) {
 	xScale.range([0, width]);
 	yScale.range([height, 0]);
 
-	var chart = d3.select(id + " .chart")
+	var numCharts = $(id + " .query-results .chart").length;
+	var thisChartClass = "chart-" + numCharts;
+	$(id + " .query-results").append('<svg class="chart ' + thisChartClass + '"></svg>');
+
+	var chart = d3.select(id + ' .' + thisChartClass)
 		.attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom)
 		.append("g")

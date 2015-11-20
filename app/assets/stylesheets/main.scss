@@ -24,11 +24,11 @@ text { font: 10px sans-serif; fill: black; }
 .median text { text-anchor: start; }
 
 /* Time series */
-.chart-element.line { fill: none; stroke: steelblue; stroke-width: 0.5px; }
-.chart-element.line:hover {stroke: sandybrown; stroke-width: 3px; }
+.chart-element.line { fill: none; stroke: steelblue; stroke-width: 1.5px; }
+.chart-element.line:hover {stroke: sandybrown; stroke-width: 4px; }
 .chart-element.line.selected, .chart-element.line.selected:hover 
 { 
 	stroke: orange; 
-	stroke-width: 3px; 
+	stroke-width: 4px; 
 }
 
