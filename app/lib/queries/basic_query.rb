@@ -14,6 +14,10 @@ class BasicQuery
 			.where.not(church_data: {params[:property] => nil })
 		    .order(params[:property] + ' asc')
 	end
+
+	def self.js()
+		return ''
+	end
 end
 
 end

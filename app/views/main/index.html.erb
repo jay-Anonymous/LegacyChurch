@@ -3,7 +3,7 @@
 
 <% queries = Queries::Base.get_all %>
 <% query_type = @params[:query_type] unless !@params %>
-<% raw_data = [] %>
+<% javascript = '' %>
 
 <% queries.each do |q| %>
 
@@ -21,11 +21,13 @@
 	</div>
 
 	</div>
+	<% javascript << q.js %>
 
 <% end %>
 
 <script type="text/javascript">
 var churches = undefined;
+
 $(document).ready(function() {
 	$(".query").on("ajax:success", function(e, data, status, xhr) {
 		var parentId = "#" + $(this).closest("div").attr("id");
@@ -38,7 +40,9 @@ $(document).ready(function() {
 		$(".data-table").append("<p>ERROR</p>");
 	}); 
 });
+
 </script>
 
+<%= javascript.html_safe %>
 
 

@@ -28,6 +28,7 @@ function show_time_series_query(church_data_json, property, id) {
 
 	sortedData.forEach(function(el) {
 		var normal = el.values[0][property];
+		if (normal == 0) return;
 		el.values.map(function(val) { val[property] = val[property] / normal });
 		chart.object.append("path")
 			.datum(el.values)
