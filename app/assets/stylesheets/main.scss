@@ -13,9 +13,8 @@
 	position: absolute;
 	padding: 0;
 	left: 100%;
+	top: 0;
 }
-.top-level-item ul { top: -1px; }
-.sub-item ul { top: 0; }
 
 .query-menu, .query-menu ul { list-style-type: none; }
 .sub-item 
@@ -26,17 +25,14 @@
 .first-item, .top-level-item, .sub-item
 {
 	padding: 2px 4px 1px 4px;
-	border: solid grey;
+	border: 1px solid grey;
 	background: #eee;
-	width: 200px;
+	width: 300px;
 	cursor: pointer;
 	font-size: 13px;
 	font-family: Arial;
 }
-
-.first-item { border-width: 1px; }
-.top-level-item { border-width: 0 1px 1px 1px; }
-.sub-item { border-width: 1px 1px 1px 0; }
+.top-level-item, .sub-item { margin-top: -1px; }
 
 .leaf-item.selected { background: lightblue; }
 

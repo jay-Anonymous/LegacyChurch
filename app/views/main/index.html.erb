@@ -27,35 +27,49 @@
 
 <script type="text/javascript">
 
-var churches = undefined;
-
 $('.first-item').click(function(evt) {
 	$(this).next('.query-menu').toggle('fade', {}, 'fast');
 });
 
+$('.top-level-item').click(function(evt) {
+	if ($(this).hasClass('open')) return;
+	
+	var currOpen = $(this).parents('.query-menu').find('.open');
+	currOpen.children().children().toggle(function() {
+		$(this).children().children().toggle('slide', {direction: 'left'}, 'fast');
+	});
+
+	currOpen.removeClass('open');
+	$(this).addClass('open');
+});
+
 $('.top-level-item, .sub-item').click(function(evt) {
 	if (evt.target !== this) return;
-	$(this).children().children().toggle('slide', {direction: 'left'}, 200);
+	$(this).children().children().toggle('slide', {direction: 'left'}, 'fast');
 });
 
 $('.leaf-item').click(function(evt) {
-	$(this).parents('.query-menu').find('.selected').removeClass('selected');
-	$(this).addClass('selected');
+	var menuParent = $(this).parents('.query-menu');
+	var formParent = $(this).parents('.query');
 	var label = $(this).text();
 	var val = $(this).data('form-value');
-	$('.first-item a').text(label);
-	$(this).parents('.query').find('.church-property-hidden').val(val);
-	$(this).parents('.query-menu').toggle('fade', {}, 'fast');
+
+	menuParent.find('.selected').removeClass('selected');
+	$(this).addClass('selected');
+	formParent.find('.first-item a').text(label);
+	formParent.find('.church-property-hidden').val(val);
+	menuParent.toggle('fade', {}, 'fast');
 });
 
 $(document).ready(function() {
+	var churches = undefined;
 	$(".query").on("ajax:success", function(e, data, status, xhr) {
 		var parentId = "#" + $(this).closest("div").attr("id");
 		var funcName = $(parentId).data("function");
 		var args = $(parentId).data("args");
 		$(parentId + " .query-results").empty();
 		churches = xhr.responseText;
-		window[funcName](churches, $(parentId + " #church_property").val(), parentId, args);
+		window[funcName](churches, $(parentId + " .church-property-hidden").val(), parentId, args);
 	}).on("ajax:error", function (e, xhr, status, error) {
 		$(".data-table").append("<p>ERROR</p>");
 	}); 

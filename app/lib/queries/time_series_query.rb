@@ -4,7 +4,7 @@ module Queries
 class TimeSeriesQuery < AbstractQuery
 	Template = 'Show me the :property data from :year1 to :year2, grouped by :grouping.'
 	Params = {
-			  :property => ['select_tag', ChurchData.get_prop_tree(except: [:year, :church_id])],
+			  :property => ['selectmenu_tag', ChurchData.get_prop_tree()],
 			  :year1 => ['select_tag', 2000..2014],
 			  :year2 => ['select_tag', 2000..2014],
 			  :grouping => ['select_tag', ["None", "District", "City", "Value"]],

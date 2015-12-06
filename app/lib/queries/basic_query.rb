@@ -4,8 +4,7 @@ module Queries
 class BasicQuery < AbstractQuery
 	Template = 'Show me the :property data for :year.'
 	Params = {
-			  :property => ['selectmenu_tag', [[{descriptor: 'asdf'}, [{descriptor: 'zxcv'}, 
-															[{descriptor: 'kjlh', value: '3'}]]], [{descriptor: '1234', value: '4'}]]], #ChurchData.get_all_properties(except: [:year, :church_id])],
+			  :property => ['selectmenu_tag', ChurchData.get_prop_tree()],
 			  :year => ['select_tag', 2000..2014],
 		     }
 
