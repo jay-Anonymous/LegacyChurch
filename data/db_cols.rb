@@ -1,4 +1,14 @@
 
+# List of transformation rules for earlier years.  Left-hand-side values indicate database columns,
+# and right-hand-side values are possible ways to compute the values from earlier years.  In
+# particular, a rule of the form
+#
+#    'A' => [[a,b,c], [x,y,z]],
+#
+# will first try to fill in database column A with a + b + c if A is not present in the spreadsheet.
+# If (a,b,c) is not present in the spreadsheet, it will then try to fill in column A with x + y + z.
+# If (x,y,z) is not present in the spreadsheet, column A will take value NULL.
+
 $db_column_rules = {'MISSENGAGE' => [['MISPAR']],
 				    'CFCHILD'    => [['CSCHILD', 'AOCHILD']],
 				    'CFYOUTH'    => [['CSYOUTH', 'AOYOUTH']],
@@ -88,6 +98,9 @@ $db_column_rules = {'MISSENGAGE' => [['MISPAR']],
 					'handled'    => ['CFPTOT', 'CSONGO', 'CFGTOT'],
 }
 
+# See which spreadsheet columns are present in the database, or are handled by the above rules
+# In particular, if the spreadsheet column name appears on the right-hand side of some rule above,
+# we can safely ignore it.  Otherwise, we print a warning message.
 def check_xls_cols(xls_cols, db_cols)
 	xls_cols.keys.each do |key|
 		unless db_cols.include? key or $db_column_rules.values.flatten.include? key
@@ -96,6 +109,8 @@ def check_xls_cols(xls_cols, db_cols)
 	end
 end
 
+# The complement of check_xls_cols: if a database column does not appear in the spreadsheet and it
+# is not on the left-hand-side of some rule above, print a warning message.
 def check_db_cols(xls_cols, db_cols)
 	db_cols.each do |col|
 		unless xls_cols.keys.include? col or $db_column_rules.keys.include? col
@@ -104,6 +119,7 @@ def check_db_cols(xls_cols, db_cols)
 	end
 end
 
+# Sum a list that can contain nil values and integers
 def sumnil(*summands)
 	summation = nil
 	summands.each do |summand|
@@ -116,10 +132,14 @@ def sumnil(*summands)
 	return summation
 end
 
+# convert a non-nil cell to an integer
 def cell_to_int(row, label, xls_cols)
 	return row[xls_cols[label]].to_i unless row[xls_cols[label]].nil?
 end
 
+# Here's the workhorse function: if database column is present in the spreadsheet, we just get
+# the value.  Otherwise, we apply one of the above rules to compute the value, if we can find
+# a rule that matches.  If not, then we return nil
 def get_column_value(row, column_name, xls_cols)
 
 	value = nil

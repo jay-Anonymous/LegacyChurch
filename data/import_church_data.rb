@@ -11,6 +11,7 @@ def capitalize_words(str)
 	str.split.map(&:capitalize).join(' ')
 end
 
+# Open a connection to the database and spreadsheet
 db = SQLite3::Database.new "legacy.db"
 data = Roo::Spreadsheet.open(ARGV[0], extension: :xls)
 
@@ -20,6 +21,7 @@ year = ARGV[0].scan(/Table1-(\d{4})/)[0][0]
 xls_cols = {}
 db_cols = pst.columns
 
+# Record the indices of the spreadsheet column names
 data.row(1).each_with_index do |val, index|
 	if val == 'ChurchNo'
 		xls_cols["church_id"] = index
@@ -39,6 +41,7 @@ data.row(1).each_with_index do |val, index|
 	end
 end
 
+# Check to see which DB columns aren't present in the spreadsheet, and vice versa
 check_xls_cols(xls_cols, db_cols)
 check_db_cols(xls_cols, db_cols)
 
@@ -49,13 +52,15 @@ response = STDIN.gets.chomp
 exit unless response[0] == 'y'
 puts "Importing..."
 
+# Add each row from the spreadsheet to the database; this is slow and kindof thrashes
+# the hard disk, it would probably be better to aggregate the queries
 data.each do |row|
 	next unless row[xls_cols["church_id"]].to_i != 0
-
 
 	hdrs = db_cols.join(",")
 	sql = "insert into church_data (#{hdrs}) values (#{('?,' * db_cols.length)[0..-2]})"
 
+	# compute the values to insert into the prepared statment
 	values = []
 	db_cols.each do |col|
 		value = nil
@@ -73,10 +78,14 @@ data.each do |row|
 	state = row[xls_cols["state"]].upcase unless row[xls_cols["state"]].nil?
 
 	if values.any? then
+		# First check to see if a church with the given id is present in the churches table;
+		# if not, add it
 		if db.execute("select * from churches where id=?", id).empty? then
 			db.execute("insert into churches (id, name, district, city, state) values (?,?,?,?,?)",
 					   [id, name, district, city, state])
 		end
+
+		# Next, add in the data to the church_data table
 		db.execute(sql, values)
 	else
 		print "Church ID #{id} (#{name}) has no data; ignoring\n"
