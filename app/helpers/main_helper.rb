@@ -1,6 +1,6 @@
 module MainHelper
 	def display(query, name, form_data)
-		html = '<p>' + query::Template + '</p>'
+		html = query::Template
 		query::Params.each do |key, value|
 			el = get_form_element(value[0], name, key, value[1..-1], form_data)
 			html.sub!(':' + key.to_s, el)
@@ -34,7 +34,37 @@ module MainHelper
 				str += "options_for_select(#{args[0]})"
 			end
 
+
+		when 'selectmenu_tag'
+			str += "#{args[0]}"
 		end
 		return eval str
 	end
+
+	def selectmenu_tag(id, menu_items)
+		id = id.gsub('[', '-').gsub(']', '')
+		tag = "<span class=\"#{id}\"><span class=\"first-item\"><a>Choose... 2000</a>"
+		tag += "<span class=\"arrow\">▾</span></span>"
+		tag += "<ul class=\"query-menu\" style=\"display: none\">"
+		menu_items.each do |item|
+			tag += print_menu_item(item, true)
+		end
+		tag += "</ul></span>"
+		tag += hidden_field_tag 'church[property]', 'nil', id: nil, class: 'church-property-hidden'
+	end
+
+	def print_menu_item(item, top_level)
+		item_class = top_level ? 'top-level-item' : 'sub-item';
+		item_class << ' leaf-item' if item[1].nil?
+
+		str = "<li class=\"#{item_class}\">#{item[0]}"
+		if (not item[1].nil?)
+			str += "<span class=\"arrow\">▸</span>"
+			str += "<ul>"
+			str += print_menu_item(item[1], false)
+			str += "</ul>"
+		end
+		str += "</li>"
+	end
+
 end

@@ -26,7 +26,26 @@
 <% end %>
 
 <script type="text/javascript">
+
 var churches = undefined;
+
+$('.first-item').click(function(evt) {
+	$(this).next('.query-menu').toggle('fade', {}, 'fast');
+});
+
+$('.top-level-item, .sub-item').click(function(evt) {
+	if (evt.target !== this) return;
+	$(this).children().children().toggle('slide', {direction: 'left'}, 200);
+});
+
+$('.leaf-item').click(function(evt) {
+	$(this).parents('.query-menu').find('.selected').removeClass('selected');
+	$(this).addClass('selected');
+	var val = $(this).text();
+	$('.first-item a').text(val);
+	$(this).parents('.query').find('.church-property-hidden').val(val);
+	$(this).parents('.query-menu').toggle('fade', {}, 'fast');
+});
 
 $(document).ready(function() {
 	$(".query").on("ajax:success", function(e, data, status, xhr) {
