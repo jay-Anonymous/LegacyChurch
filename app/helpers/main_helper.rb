@@ -57,7 +57,9 @@ module MainHelper
 		item_class = top_level ? 'top-level-item' : 'sub-item';
 		item_class << ' leaf-item' if item[1].nil?
 
-		str = "<li class=\"#{item_class}\">#{item[0]}"
+		str = "<li class=\"#{item_class}\""
+		str += " data-form-value=\"#{item[0][:value]}\"" unless item[0][:value].nil?
+		str += ">#{item[0][:descriptor]}"
 		if (not item[1].nil?)
 			str += "<span class=\"arrow\">▸</span>"
 			str += "<ul>"

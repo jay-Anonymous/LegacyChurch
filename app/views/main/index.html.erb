@@ -41,8 +41,9 @@ $('.top-level-item, .sub-item').click(function(evt) {
 $('.leaf-item').click(function(evt) {
 	$(this).parents('.query-menu').find('.selected').removeClass('selected');
 	$(this).addClass('selected');
-	var val = $(this).text();
-	$('.first-item a').text(val);
+	var label = $(this).text();
+	var val = $(this).data('form-value');
+	$('.first-item a').text(label);
 	$(this).parents('.query').find('.church-property-hidden').val(val);
 	$(this).parents('.query-menu').toggle('fade', {}, 'fast');
 });

@@ -1,8 +1,8 @@
 class ChurchData < ActiveRecord::Base
 	belongs_to :church
 
-	def self.get_all_properties(except: [])
-		if except.empty? then return @props end
+	def self.get_prop_tree(except: [])
+		return @props if except.empty?
 
 		local_props = @props
 		except.each do |el|
