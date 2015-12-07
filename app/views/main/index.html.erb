@@ -7,14 +7,14 @@
 
 <% queries.each do |q| %>
 
-	<div id="<%= to_id(q) %>" 
+	<div id="<%= to_id(q) %>" class="query-block"
 	  data-function="show_<%= ActiveSupport::Inflector.underscore(to_id(q)) %>"
       data-args="<%= q.js_args %>"
 	  >
 	<%= form_tag 'respond_to.json', remote: true, class: 'query' do %>
 		<% form_data = @params[:church] unless (!@params or q != query_type.constantize) %>
 		<%= display(q, ':church', form_data) %>
-		<%= submit_tag('Go!') %>
+		</br> <%= submit_tag('Go!') %>
 	<% end %>
 
 	<div class="query-results">

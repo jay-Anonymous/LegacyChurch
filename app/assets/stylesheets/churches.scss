@@ -2,5 +2,10 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-table {border-spacing: 15px 0; }
-th { text-align: left; }
+table {border-spacing: 0; overflow-x: scroll; }
+.first-col { min-width: 450px; }
+.year-col { text-align: left; min-width: 80px; }
+
+.category { border-bottom: 1px solid black; }
+
+tr.item:nth-child(even) { background: #ddd; }

@@ -2,19 +2,27 @@
 <h1><%= "#{@church.name} (#{@church.id})" %></h1>
 
 <table>
-	<tr>
-		<th></th>
-		<% ChurchData.get_all_properties(except: [:year, :church_id]).each do |key| %>
-			<%= "<th>#{key}</th>".html_safe %>
+	<th class="first-col"></th>
+	<% (2000..2014).each do |year| %>
+		<th class="year-col"><%= year %></th>
+	<% end %>
+
+	<% data = @church.church_data.to_a %>
+	<% ChurchData.get_prop_tree().each do |category| %>
+		<tr><td class="category"><strong><%= category[:descriptor] %></td></strong>
+		<% (2000..2014).each do |year| %>
+			<td class="category"></td>
 		<% end %>
-	</tr>
-	<% @church.church_data.each do |data| %>
-		<tr>
-			<%= "<td>#{data.year}</td>".html_safe %>
-			<% ChurchData.get_all_properties(except: [:year, :church_id]).each do |key| %>
-				<%= "<td> #{data.send key} </td>".html_safe %>
-			<% end %>
 		</tr>
+		<% category[:children].each do |row| %>
+			<tr class="item"><td><%= row[:descriptor] %></td>
+			<% (2000..2014).each do |year| %>
+				<% i = year - 2000 %>
+				<% next if (row[:value].nil? or data.length <= i) %>
+				<td><%= data[i].send row[:value] %></td>
+			<% end %>
+		<% end %>
+		<tr><td>&nbsp;</td></tr>
 	<% end %>
 </table>
 

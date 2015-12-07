@@ -43,7 +43,7 @@ module MainHelper
 
 	def selectmenu_tag(id, menu_items)
 		id = id.gsub('[', '-').gsub(']', '')
-		tag = "<span class=\"#{id}\"><span class=\"first-item\"><a>Choose... 2000</a>"
+		tag = "<span class=\"#{id}\"><span class=\"first-item\"><a>Choose... </a>"
 		tag += "<span class=\"arrow\">▾</span></span>"
 		tag += "<ul class=\"query-menu\" style=\"display: none\">"
 		menu_items.each do |item|
