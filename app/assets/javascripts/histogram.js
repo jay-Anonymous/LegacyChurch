@@ -1,5 +1,5 @@
 
-function show_basic_query(church_data_json, property, id, args) {
+function show_basic_query(church_data_json, property, id) {
 
 	var church_data = parseData(church_data_json);
 	var binnedData = d3.layout.histogram()

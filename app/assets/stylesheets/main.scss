@@ -39,8 +39,16 @@
 
 .leaf-item.selected { background: lightblue; }
 
+/* Query controls */
+.query-results { display: inline-block; }
+.query-controls
+{
+	float: right;
+	width: 300px;
+}
+
 /* Generic elements */
-text { font: 10px sans-serif; fill: black; }
+text { font: 10px sans-serif; }
 
 .axis path, .axis line 
 {
@@ -60,7 +68,7 @@ text { font: 10px sans-serif; fill: black; }
 .median text { text-anchor: start; }
 
 /* Time series */
-.chart-element.line { fill: none; stroke: steelblue; stroke-width: 1.5px; }
+.chart-element.line { fill: none; stroke: steelblue; stroke-width: 2px; }
 .chart-element.line:hover {stroke: sandybrown; stroke-width: 4px; }
 .chart-element.line.selected, .chart-element.line.selected:hover 
 { 

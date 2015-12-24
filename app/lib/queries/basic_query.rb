@@ -1,7 +1,7 @@
 
 module Queries
 
-class BasicQuery < AbstractQuery
+class BasicQuery 
 	Template = 'Show me the :property data for :year.'
 	Params = {
 			  :property => ['selectmenu_tag', ChurchData.get_prop_tree()],

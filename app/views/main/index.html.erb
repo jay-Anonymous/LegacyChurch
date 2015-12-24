@@ -3,13 +3,11 @@
 
 <% queries = Queries::Base.get_all %>
 <% query_type = @params[:query_type] unless !@params %>
-<% javascript = '' %>
 
 <% queries.each do |q| %>
 
 	<div id="<%= to_id(q) %>" class="query-block"
 	  data-function="show_<%= ActiveSupport::Inflector.underscore(to_id(q)) %>"
-      data-args="<%= q.js_args %>"
 	  >
 	<%= form_tag 'respond_to.json', remote: true, class: 'query' do %>
 		<% form_data = @params[:church] unless (!@params or q != query_type.constantize) %>
@@ -18,65 +16,36 @@
 	<% end %>
 
 	<div class="query-results">
-	</div>
 
 	</div>
-	<% javascript << q.js %>
+
+	<div class="query-controls">
+		<div class="y-axis-range"></div>
+		<div class="y-axis-absolute"></div>
+		<div class="data-grouping"></div>
+	</div>
+	</div>
 
 <% end %>
 
 <script type="text/javascript">
-
-$('.first-item').click(function(evt) {
-	$(this).next('.query-menu').toggle('fade', {}, 'fast');
-});
-
-$('.top-level-item').click(function(evt) {
-	if ($(this).hasClass('open')) return;
-	
-	var currOpen = $(this).parents('.query-menu').find('.open');
-	currOpen.children().children().toggle(function() {
-		$(this).children().children().toggle('slide', {direction: 'left'}, 'fast');
-	});
-
-	currOpen.removeClass('open');
-	$(this).addClass('open');
-});
-
-$('.top-level-item, .sub-item').click(function(evt) {
-	if (evt.target !== this) return;
-	$(this).children().children().toggle('slide', {direction: 'left'}, 'fast');
-});
-
-$('.leaf-item').click(function(evt) {
-	var menuParent = $(this).parents('.query-menu');
-	var formParent = $(this).parents('.query');
-	var label = $(this).text();
-	var val = $(this).data('form-value');
-
-	menuParent.find('.selected').removeClass('selected');
-	$(this).addClass('selected');
-	formParent.find('.first-item a').text(label);
-	formParent.find('.church-property-hidden').val(val);
-	menuParent.toggle('fade', {}, 'fast');
-});
+var churches = undefined;
 
 $(document).ready(function() {
-	var churches = undefined;
 	$(".query").on("ajax:success", function(e, data, status, xhr) {
 		var parentId = "#" + $(this).closest("div").attr("id");
 		var funcName = $(parentId).data("function");
-		var args = $(parentId).data("args");
+		initControls(parentId, funcName);
 		$(parentId + " .query-results").empty();
 		churches = xhr.responseText;
-		window[funcName](churches, $(parentId + " .church-property-hidden").val(), parentId, args);
+		window[funcName](churches, $(parentId + " .church-property-hidden").val(), parentId);
 	}).on("ajax:error", function (e, xhr, status, error) {
 		$(".data-table").append("<p>ERROR</p>");
 	}); 
 });
 
-</script>
+$(document).ready(load_dropdowns);
 
-<%= javascript.html_safe %>
+</script>
 
 
