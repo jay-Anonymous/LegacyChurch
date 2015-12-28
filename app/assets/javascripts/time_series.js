@@ -1,92 +1,37 @@
 
-function show_time_series_query(church_data_json, property, id) {
+function show_time_series_query(church_data_json, id) {
 
     var church_data = parseData(church_data_json);
-    var year = function(el) { return el.year; };
+	var property = $(id + ' .church-property-hidden').val();
+    var get_year = function(el) { return el.year; };
+    var get_prop = function(el) { return el[property]; };
 
     var yMin = $(id + ' .y-axis-range').slider('values', 0);
     var yMax = $(id + ' .y-axis-range').slider('values', 1);
-    var useAbsScale = $(id + ' .y-axis-absolute input[type=checkbox]').is(':checked');
+    var useAbsScale = $(id + ' .y-axis-absolute').is(':checked');
+
+    churchMinValue = d3.min(church_data.data, get_prop);
+    churchMaxValue = d3.max(church_data.data, get_prop);
 
     var x = d3.scale.linear()
-        .domain(d3.extent(church_data.data, year));
+        .domain(d3.extent(church_data.data, get_year));
     var y = d3.scale.linear()
         .domain([yMin, yMax]);
 
-    var minYear = d3.min(church_data.data, year);
-    var maxYear = d3.max(church_data.data, year);
+    var minYear = d3.min(church_data.data, get_year);
+    var maxYear = d3.max(church_data.data, get_year);
 
     var line = d3.svg.line()
         .x(function(d) { return x(d.year); })
         .y(function(d) { return y(d[property]); });
 
-    var args = '';
-    var grouping = d3.select(id + ' ' + args).property("value");
-    var l1sort = undefined;
-    switch (grouping) {
-        case 'City':
-            l1sort = function(el) { return el.city; };
-            break;
-
-        case 'District':
-            l1sort = function(el) { return el.district; };
-            break;
-
-        case 'Value':
-            var firstYearData = church_data.data.filter(function (d) {
-                return d.year == minYear;
-            });
-            var firstYearPropVals = firstYearData.map(function (d) {
-                return +d[property];
-            }).sort(function compareNumbers(a, b) {
-                  return a - b;
-            });
-            var bins = get_hist_thresholds([firstYearPropVals[0], 
-                    firstYearPropVals[firstYearPropVals.length - 1]],
-                    firstYearPropVals);
-            var idsToBins = [];
-            
-            for (i = 0; i < bins.length-1; i++) {
-                var idsInBin = [];
-                firstYearData.forEach(function (d) {
-                    if (bins[i] <= d[property] && d[property] < bins[i+1]) {
-                        idsInBin.push(d.id);
-                    }
-                });
-                idsToBins.push(idsInBin);
-            }
-                
-            l1sort = function(el) {
-                for (i = 0; i < idsToBins.length; ++i) {
-                    if ($.inArray(el.id, idsToBins[i]) != -1) {
-                        return i;
-                    }
-                }
-            };
-            break;
-        case 'None': 
-        default:
-            l1sort = function(e) { return ''; };
-    }
-
-    var sortedData = d3.nest()
-        .key(l1sort).sortKeys(function(e1, e2) {
-            return +e1 < +e2 ? -1 :
-                   +e1 == +e2 ? 0 :
-                   1;
-        })
-        .key(function(el) { return el.id; })
-        .sortValues(function(e1, e2) {
-            return e1.year < e2.year ? -1 :
-                   e1.year == e2.year ? 0 :
-                   1;
-        })
-        .entries(church_data.data);
+    var sortedData = getNestedData(church_data.data);
 
     sortedData.forEach(function(group) {
-        var chart = initChart(id, x, y, 
+        var chart = initChart(id, group.key, 
+				x, y, 
                 d3.range(minYear, maxYear + 1, 1), d3.format("d"), 
-                d3.range(yMin, yMax + 1, 1),
+                d3.range(yMin, yMax + 1, useAbsScale ? Math.ceil((yMax + 1 - yMin) / 10) : 1),
                 function(val) { 
                     if (useAbsScale) 
                         return val;
@@ -108,19 +53,13 @@ function show_time_series_query(church_data_json, property, id) {
                     display_prop_over_time(data, property, id);
                 });
         });
-        chart.object.append("text")
-            .attr("x", chart.width / 2)
-            .attr("y", 0)
-            .attr("text-anchor", "middle")
-            .style("font-size", "20px")
-            .style("font-weight", "lighter")
-            .text($('.leaf-item.selected').text() + " for " + group.key);
+
     });
 }
 
 function display_prop_over_time(data, property, id) {
-    $(id + " .query-results .data-details").remove();
-    $(id + " .query-results").append('<div class="data-details">');
+    $(id + " .data-details").remove();
+    $(id).append('<div class="data-details">');
     var details = $(id + " .data-details");
 
     details.append("<a href=\"churches/" + data[0].id + "\">" + data[0].id + "</a></br>");

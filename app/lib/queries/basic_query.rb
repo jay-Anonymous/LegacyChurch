@@ -1,7 +1,7 @@
 
 module Queries
 
-class BasicQuery 
+class BasicQuery < AbstractQuery
 	Template = 'Show me the :property data for :year.'
 	Params = {
 			  :property => ['selectmenu_tag', ChurchData.get_prop_tree()],
@@ -13,6 +13,10 @@ class BasicQuery
 			.where(church_data: {year: params[:year]})
 			.where.not(church_data: {params[:property] => nil })
 		    .order(params[:property] + ' asc')
+	end
+
+	def self.control_options
+		'{"range": false, "absolute": false}'.html_safe
 	end
 end
 

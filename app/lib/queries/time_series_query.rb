@@ -1,7 +1,7 @@
 
 module Queries
 
-class TimeSeriesQuery 
+class TimeSeriesQuery < AbstractQuery
 	Template = 'Show me the :property data from :year1 to :year2.'
 	Params = {
 			  :property => ['selectmenu_tag', ChurchData.get_prop_tree()],

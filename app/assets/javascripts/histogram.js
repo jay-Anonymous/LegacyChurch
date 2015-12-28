@@ -1,73 +1,79 @@
 
-function show_basic_query(church_data_json, property, id) {
+function show_basic_query(church_data_json, id) {
 
 	var church_data = parseData(church_data_json);
-	var binnedData = d3.layout.histogram()
-		.value(function(d) { return d[property]; })
-		.bins(get_hist_thresholds)(church_data.data);
+	var property = $(id + ' .church-property-hidden').val();
 
-	var binWidth = binnedData[0].dx;
-	var minValue = binnedData[0].x;
-	var maxValue = binnedData[binnedData.length - 1].x + binWidth;
+    var sortedData = getNestedData(church_data.data);
 
-	var get_histogram_tick_label = function(tick) {
-		tick = d3.format(",.0f")(tick);
-		if (tick == d3.format(",.0f")(maxValue))
-			tick = "";
-		else if (tick == d3.format(",.0f")(binnedData[binnedData.length - 1].x))
-			tick = "≥" + tick;
-		return tick;
-	};
+	sortedData.forEach(function(group) {
+		var binnedData = d3.layout.histogram()
+			.value(function(d) { return d.values[0][property]; })
+			.bins(get_hist_thresholds)(group.values);
 
-	var x = d3.scale.linear()
-		.domain([minValue, maxValue])
-	var y = d3.scale.linear()
-		.domain([0, d3.max(binnedData, function(d) { return d.y; })]);
-	var chart = initChart(id, x, y, d3.range(minValue, maxValue, binWidth), get_histogram_tick_label);
+		var binWidth = binnedData[0].dx;
+		var minValue = binnedData[0].x;
+		var maxValue = binnedData[binnedData.length - 1].x + binWidth;
 
-	var bar = chart.object.selectAll(".bar")
-	    .data(binnedData)
-	    .enter().append("g")
-	    .attr("class", "chart-element bar")
-	    .attr("transform", function(d, i) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; })
-		.on("click", function(data) {
-			d3.select(id + " .selected").attr("class", "chart-element bar");
-			d3.select(this).attr("class", "chart-element bar selected");
-			display_bin(data, id);
-		});
+		var get_histogram_tick_label = function(tick) {
+			tick = d3.format(",.0f")(tick);
+			if (tick == d3.format(",.0f")(maxValue))
+				tick = "";
+			else if (tick == d3.format(",.0f")(binnedData[binnedData.length - 1].x))
+				tick = "≥" + tick;
+			return tick;
+		};
 
-	bar.append("rect")
-	    .attr("x", 1)
-	    .attr("width", x(binWidth) - 1)
-	    .attr("height", function(d) { return chart.height - y(d.y); })
+		var x = d3.scale.linear()
+			.domain([minValue, maxValue])
+		var y = d3.scale.linear()
+			.domain([0, d3.max(binnedData, function(d) { return d.y; })]);
+		var chart = initChart(id, group.key, x, y, d3.range(minValue, maxValue, binWidth), get_histogram_tick_label);
 
-	bar.append("text")
-	    .attr("x", x(binWidth) / 2)
-	    .attr("y", -10)
-	    .attr("dy", ".75em")
-	    .text(function(d) { return d.y; });
+		var bar = chart.object.selectAll(".bar")
+			.data(binnedData)
+			.enter().append("g")
+			.attr("class", "chart-element bar")
+			.attr("transform", function(d, i) { return "translate(" + x(d.x) + "," + y(0.95 * d.y) + ")"; })
+			.on("click", function(data) {
+				d3.select(id + " .selected").attr("class", "chart-element bar");
+				d3.select(this).attr("class", "chart-element bar selected");
+				display_bin(data, id);
+			});
 
-	var med_value = median(church_data.data.map(function(d) { return d[property]; }).sort());
-	chart.object.append("line")
-		.attr("x1", x(med_value))
-		.attr("x2", x(med_value))
-		.attr("y1", y(0))
-		.attr("y2", y(chart.height))
-		.attr("stroke-width", 1)
-		.attr("stroke-dasharray", "10,10")
-		.attr("stroke", "black");
+		bar.append("rect")
+			.attr("x", 1)
+			.attr("width", x(minValue + binWidth) - 1)
+			.attr("height", function(d) { return chart.height - y(0.95 * d.y); })
 
-	chart.object.append("text")
-		.attr("x", x(med_value) + 5)
-		.attr("y", 0)
-		.attr("class", "chart-element median")
-		.attr("text-anchor", "start")
-		.text(d3.format(",.0f")(med_value));
+		bar.append("text")
+			.attr("x", x(minValue + binWidth) / 2)
+			.attr("y", -10)
+			.attr("dy", ".75em")
+			.text(function(d) { return d.y; });
+
+		var med_value = median(group.values.map(function(d) { return d.values[0][property]; }).sort());
+		chart.object.append("line")
+			.attr("x1", x(med_value))
+			.attr("x2", x(med_value))
+			.attr("y1", 15)
+			.attr("y2", chart.height)
+			.attr("stroke-width", 1)
+			.attr("stroke-dasharray", "10,10")
+			.attr("stroke", "black");
+
+		chart.object.append("text")
+			.attr("x", x(med_value) + 5)
+			.attr("y", 25)
+			.attr("class", "chart-element median")
+			.attr("text-anchor", "start")
+			.text(d3.format(",.0f")(med_value));
+	});
 }
 
 function display_bin(data, id) {
-	$(id + " .query-results .data-details").remove();
-	$(id + " .query-results").append('<div class="data-details">');
+	$(id + " .data-details").remove();
+	$(id).append('<div class="data-details">');
 	var details = $(id + " .data-details");
 	details.append("<table>");
 
@@ -117,7 +123,7 @@ function get_hist_thresholds(range, values) {
 		thresholds.push(curr);
 		curr += bin_size;
 	}
-	thresholds.push(range[1]);
+	if (range[1] > upper_fence) thresholds.push(range[1]);
 
 	return thresholds;
 }

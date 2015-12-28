@@ -11,6 +11,12 @@ class Base
 	end
 end
 
+class AbstractQuery
+	def self.control_options 
+		'{}'
+   	end
+end
+
 end
 
 

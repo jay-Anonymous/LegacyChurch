@@ -8,37 +8,59 @@
 
 	<div id="<%= to_id(q) %>" class="query-block"
 	  data-function="show_<%= ActiveSupport::Inflector.underscore(to_id(q)) %>"
+      data-control-options='<%= q::control_options %>'
 	  >
-	<%= form_tag 'respond_to.json', remote: true, class: 'query' do %>
-		<% form_data = @params[:church] unless (!@params or q != query_type.constantize) %>
-		<%= display(q, ':church', form_data) %>
-		</br> <%= submit_tag('Go!') %>
-	<% end %>
+		<%= form_tag 'respond_to.json', remote: true, class: 'query' do %>
+			<% form_data = @params[:church] unless (!@params or q != query_type.constantize) %>
+			<%= display(q, ':church', form_data) %>
+			</br> <%= submit_tag('Go!') %>
+		<% end %>
 
-	<div class="query-results">
+		<div class="query-results"> </div>
 
-	</div>
+		<div class="query-controls">
+			<div class="control">
+				<div style="margin-bottom: 5px">Value range:</div>
+				<div class="y-axis-range"></div>
+			</div>
 
-	<div class="query-controls">
-		<div class="y-axis-range"></div>
-		<div class="y-axis-absolute"></div>
-		<div class="data-grouping"></div>
-	</div>
+			<div class="control">
+				<label>Show absolute values:</label>
+				<input type="checkbox" class="y-axis-absolute"/>
+			</div>
+
+			<div class="control">
+				<label>Group data by </label>
+				<select class="data-grouping">
+					<option value="None" selected>None</option>
+					<option value="District">District</option>
+					<option value="City">City</option>
+					<!--	<option value="Value">Value</option> -->
+				</select>
+			</div>
+		</div>
 	</div>
 
 <% end %>
 
 <script type="text/javascript">
 var churches = undefined;
+var churchMinValue = undefined;
+var churchMaxValue = undefined;
+var l1sort = function() { return '' } 
 
 $(document).ready(function() {
 	$(".query").on("ajax:success", function(e, data, status, xhr) {
+
 		var parentId = "#" + $(this).closest("div").attr("id");
 		var funcName = $(parentId).data("function");
-		initControls(parentId, funcName);
+		var opts = $(parentId).data("control-options");
+
+		initControls(parentId, funcName, opts);
 		$(parentId + " .query-results").empty();
 		churches = xhr.responseText;
-		window[funcName](churches, $(parentId + " .church-property-hidden").val(), parentId);
+		window[funcName](churches, parentId);
+
 	}).on("ajax:error", function (e, xhr, status, error) {
 		$(".data-table").append("<p>ERROR</p>");
 	}); 

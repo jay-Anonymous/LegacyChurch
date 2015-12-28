@@ -40,12 +40,20 @@
 .leaf-item.selected { background: lightblue; }
 
 /* Query controls */
-.query-results { display: inline-block; }
+.query-results 
+{ 
+	display: inline-block; 
+	max-height: 715px; 
+	max-width: 1015px;
+	overflow-y: scroll;
+}
 .query-controls
 {
 	float: right;
 	width: 300px;
+	display: none;
 }
+.control { margin-bottom: 20px; }
 
 /* Generic elements */
 text { font: 10px sans-serif; }
@@ -64,7 +72,7 @@ text { font: 10px sans-serif; }
 .chart-element.bar:hover {fill: sandybrown; }
 .chart-element.bar.selected, .chart-element.bar.selected:hover { fill: orange; }
 
-.bar text, .axis text { text-anchor: middle; }
+.bar text, .axis text { text-anchor: middle; fill: black; }
 .median text { text-anchor: start; }
 
 /* Time series */
