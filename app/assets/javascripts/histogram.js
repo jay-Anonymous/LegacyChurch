@@ -38,7 +38,7 @@ function show_basic_query(church_data_json, id) {
 			.on("click", function(data) {
 				d3.select(id + " .selected").attr("class", "chart-element bar");
 				d3.select(this).attr("class", "chart-element bar selected");
-				display_bin(data, id);
+				display_bin(data, id, property);
 			});
 
 		bar.append("rect")
@@ -71,26 +71,24 @@ function show_basic_query(church_data_json, id) {
 	});
 }
 
-function display_bin(data, id) {
+function display_bin(data, id, property) {
 	$(id + " .data-details").remove();
 	$(id).append('<div class="data-details">');
 	var details = $(id + " .data-details");
 	details.append("<table>");
-
-	var keys = Object.keys(data[0]);
-	keys.forEach(function(el) {
-		details.append("<th>" + el + "</th>\n");
-	});
+	details.append("<th>Church ID</th>\n");
+    details.append("<th>Name</th>");
+    details.append("<th>District</th>");
+    details.append("<th>Location</th>");
+	details.append("<th>" + property + "</th>\n");
 
 	data.forEach(function(el) {
 		row = "<tr>"
-		keys.forEach(function(key) {
-			row += "<td>";
-			if (key == "id") 
-				row += "<a href=\"/churches/" + el[key] + "\">" + el[key] + "</a>";
-			else row += el[key];
-			row += "</td>";
-		});
+		row += "<td><a href=\"/churches/" + el.values[0].id + "\">" + el.values[0].id + "</a></td>";
+		row += "<td>" + el.values[0].name + "</td>";
+		row += "<td>" + el.values[0].district + "</td>";
+		row += "<td>" + el.values[0].city + "</td>";
+		row += "<td>" + el.values[0][property] + "</td>";
 		row += "</tr>"
 		details.append(row);
 	});
