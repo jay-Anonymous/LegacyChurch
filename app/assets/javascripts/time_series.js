@@ -37,14 +37,18 @@ function show_time_series_query(church_data_json, id) {
                         return val;
                     else return val == yMin ? '0' : Math.pow(2,val) * 100 + '%'; });
 
-        group.values.forEach(function(el) {
+        group.values.forEach(function(church) {
             if (!useAbsScale) {
-                var normal = el.values[0][property];
-                if (normal == 0) return;
-                el.values.map(function(val) { val[property] = val[property] == 0 ? yMin : Math.log2(val[property] / normal) });
+				var normal = -1;
+				church.values.forEach(function(el) {
+					if (normal == -1 && el[property] != 0)
+						normal = el[property];
+					if (normal != -1)
+						el[property] = el[property] == 0 ? yMin : Math.log2(el[property] / normal);
+				});
             }
             chart.object.append("path")
-                .datum(el.values)
+                .datum(church.values)
                 .attr("class", "chart-element line")
                 .attr("d", line)
                 .on("click", function(data) {
