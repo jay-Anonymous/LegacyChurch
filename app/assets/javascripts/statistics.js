@@ -1,4 +1,6 @@
 
+
+// TODO not sure I actually need these functions...
 function q1(data) {
 	return d3.quantile(data, 0.25);
 }

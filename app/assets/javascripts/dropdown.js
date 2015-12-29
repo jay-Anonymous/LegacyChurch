@@ -1,4 +1,5 @@
 
+// Create the dropdown menus
 function load_dropdowns() {
 
 	$('.first-item').click(function(evt) {

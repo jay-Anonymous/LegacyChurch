@@ -1,58 +1,78 @@
 
-function show_basic_query(church_data_json, id) {
 
-	var church_data = parseData(church_data_json);
+/* Given some church data in JSON format, plot a histogram of the results */
+function show_histogram_query(church_data_json, id) {
+
+	// Parse the data, and determine what church property we're binning over
+	var church_data = JSON.parse(church_data_json);
 	var property = $(id + ' .church-property-hidden').val();
 
-    var sortedData = getNestedData(church_data.data);
+	// Sort the data into bins according to the current grouping parameter (l1sort)
+    var sortedData = getNestedData(church_data);
 
+	// For each of our l1sort groups, display a histogram for the churches in that group
 	sortedData.forEach(function(group) {
+
+		// Bin the data
 		var binnedData = d3.layout.histogram()
-			.value(function(d) { return d.values[0][property]; })
+			.value(function(d) { return d[property]; })
 			.bins(get_hist_thresholds)(group.values);
+
+		// TODO doesn't work by city
 
 		var binWidth = binnedData[0].dx;
 		var minValue = binnedData[0].x;
-		var maxValue = binnedData[binnedData.length - 1].x + binWidth;
+		var lastTick = binnedData[binnedData.length - 1].x;
+		var maxValue = lastTick + binWidth;
 
-		var get_histogram_tick_label = function(tick) {
-			tick = d3.format(",.0f")(tick);
-			if (tick == d3.format(",.0f")(maxValue))
-				tick = "";
-			else if (tick == d3.format(",.0f")(binnedData[binnedData.length - 1].x))
-				tick = "≥" + tick;
-			return tick;
-		};
-
+		// x and y are our scaling functions to convert from data space to screen space
 		var x = d3.scale.linear()
 			.domain([minValue, maxValue])
 		var y = d3.scale.linear()
 			.domain([0, d3.max(binnedData, function(d) { return d.y; })]);
-		var chart = initChart(id, group.key, x, y, d3.range(minValue, maxValue, binWidth), get_histogram_tick_label);
 
+		// Initialize the chart region
+		var chart = initChart(id, 			// CSS selector
+							  group.key,	// Title of our current (l1sort) group 
+							  x, y, 		// Scaling functions
+							  d3.range(minValue, maxValue, binWidth), 	// x-axis tick values
+							  function(tick) {							// x-axis tick formatting
+								tick = d3.format(",.0f")(tick);
+								if (tick == d3.format(",.0f")(lastTick))	
+									tick = "≥" + tick;
+								return tick;
+							  });
+
+		// Create a bar object for each 'bin' in our histogram
 		var bar = chart.object.selectAll(".bar")
 			.data(binnedData)
 			.enter().append("g")
 			.attr("class", "chart-element bar")
-			.attr("transform", function(d, i) { return "translate(" + x(d.x) + "," + y(0.95 * d.y) + ")"; })
+			.attr("transform", function(d, i) { 
+				// The transform positions the top left of the bar
+				return "translate(" + x(d.x) + "," + y(0.95 * d.y) + ")"; 
+			})
 			.on("click", function(data) {
 				d3.select(id + " .selected").attr("class", "chart-element bar");
 				d3.select(this).attr("class", "chart-element bar selected");
 				display_bin(data, id, property);
 			});
 
+		// Each bar is actually displayed here by drawing a rectangle from top-left to bottom-right
 		bar.append("rect")
 			.attr("x", 1)
 			.attr("width", x(minValue + binWidth) - 1)
 			.attr("height", function(d) { return chart.height - y(0.95 * d.y); })
 
+		// Add a label to the top of each bar to indicate the number of objects in the bin
 		bar.append("text")
 			.attr("x", x(minValue + binWidth) / 2)
 			.attr("y", -10)
 			.attr("dy", ".75em")
 			.text(function(d) { return d.y; });
 
-		var med_value = median(group.values.map(function(d) { return d.values[0][property]; }).sort());
+		// Compute the median line and draw it on the graph
+		var med_value = median(group.values.map(function(d) { return d[property]; }).sort());
 		chart.object.append("line")
 			.attr("x1", x(med_value))
 			.attr("x2", x(med_value))
@@ -71,6 +91,7 @@ function show_basic_query(church_data_json, id) {
 	});
 }
 
+/* Display a list of the churches in a selected bin */
 function display_bin(data, id, property) {
 	$(id + " .data-details").remove();
 	$(id).append('<div class="data-details">');
@@ -96,12 +117,16 @@ function display_bin(data, id, property) {
 	details.append("</div>");
 }
 
+/* Compute the histogram thresholds; we use the Freedman-Diaconis rule, which is based off
+ * the interquartile range and seems to be a good balance of granularity versus compression */
 function get_hist_thresholds(range, values) {
 	var fence_t = 2;
 
 	var lower_fence = q1(values) - fence_t * iqr(values);
 	var upper_fence = q3(values) + fence_t * iqr(values);
 
+	// Anything below the lower threshold or above the upper threshold gets set to the
+	// threshold value so that the binning function puts them in the right place
 	for (i = 0; i < values.length; i++) {
 		if (values[i] > lower_fence) break;
 		values[i] = lower_fence;
@@ -112,6 +137,8 @@ function get_hist_thresholds(range, values) {
 		values[i] = upper_fence;
 	}
 
+	// Start at the lowest threshold, and add a new threshold for every bin-size
+	// until we get to the upper threshold
 	var thresholds = [range[0]];
 
 	var bin_size = (2 * iqr(values)) / Math.pow(values.length, 1/3);
