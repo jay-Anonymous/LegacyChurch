@@ -4,8 +4,6 @@
 <% queries = Queries::Base.get_all %>
 <% query_type = @params[:query_type] unless !@params %>
 
-<%= Rails.root %>
-
 <% queries.each do |q| %>
 
 	<div id="<%= to_id(q) %>" class="query-block"
