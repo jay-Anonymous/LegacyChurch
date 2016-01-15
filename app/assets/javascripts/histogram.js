@@ -105,7 +105,7 @@ function display_bin(data, id, property) {
 
 	data.forEach(function(el) {
 		row = "<tr>"
-		row += "<td><a href=\"/churches/" + el.values[0].id + "\">" + el.values[0].id + "</a></td>";
+		row += "<td><a href=\"/churches/" + el.id + "\">" + el.id + "</a></td>";
 		row += "<td>" + el.name + "</td>";
 		row += "<td>" + el.district + "</td>";
 		row += "<td>" + el.city + "</td>";
