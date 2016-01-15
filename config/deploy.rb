@@ -2,12 +2,12 @@
 lock '3.4.0'
 
 set :application, 'legacy'
-set :repo_url, '/var/git/mealy.git'
+set :repo_url, '/var/git/legacy.git'
 
 set :ssh_options, { :forward_agent => true }
 set :use_sudo, false
 set :keep_releases, 2
-set :linked_files, %w{config/database.yml config/secrets.yml db/production.sqlite}
+set :linked_files, %w{config/database.yml config/secrets.yml db/production.sqlite3}
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp

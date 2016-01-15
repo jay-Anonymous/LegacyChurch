@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'capistrano', '~> 3.4.0'
+gem 'capistrano', '~> 3.4.0', group: development
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.4'
