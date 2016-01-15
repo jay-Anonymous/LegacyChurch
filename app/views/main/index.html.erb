@@ -10,7 +10,7 @@
 	  data-function="show_<%= ActiveSupport::Inflector.underscore(to_id(q)) %>"
       data-control-options='<%= q::control_options %>'
 	  >
-		<%= form_tag 'respond_to.json', remote: true, class: 'query' do %>
+		<%= form_tag Rails.root.join('respond_to.json'), remote: true, class: 'query' do %>
 			<% form_data = @params[:church] unless (!@params or q != query_type.constantize) %>
 			<%= display(q, ':church', form_data) %>
 			</br> <%= submit_tag('Go!') %>
