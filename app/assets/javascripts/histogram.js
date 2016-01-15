@@ -109,7 +109,7 @@ function display_bin(data, id, property) {
 		row += "<td>" + el.name + "</td>";
 		row += "<td>" + el.district + "</td>";
 		row += "<td>" + el.city + "</td>";
-		row += "<td>" + el.[property] + "</td>";
+		row += "<td>" + el[property] + "</td>";
 		row += "</tr>"
 		details.append(row);
 	});
