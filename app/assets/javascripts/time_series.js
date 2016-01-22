@@ -4,7 +4,7 @@ function show_time_series_query(church_data_json, id) {
 
 	// Parse the incoming data
     var church_data = JSON.parse(church_data_json);
-	var property = $(id + ' .church-property-hidden').val();
+	var property = $(id + ' .church-property').val();
     var get_year = function(el) { return el.year; };
     var get_prop = function(el) { return el[property]; };
 

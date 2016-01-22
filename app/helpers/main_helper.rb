@@ -34,7 +34,6 @@ module MainHelper
 				str += "options_for_select(#{args[0]})"
 			end
 
-
 		when 'selectmenu_tag'
 			str += "#{args[0]}"
 		end
@@ -42,15 +41,16 @@ module MainHelper
 	end
 
 	def selectmenu_tag(id, menu_items)
-		id = id.gsub('[', '-').gsub(']', '')
-		tag = "<span class=\"#{id}\"><span class=\"first-item\"><a>Choose... </a>"
+		id = id[7..-2]
+		tag = "<span class=\"#{id} dropdown\"><span class=\"first-item\"><a>Choose... </a>"
 		tag += "<span class=\"arrow\">▾</span></span>"
 		tag += "<ul class=\"query-menu\" style=\"display: none\">"
 		menu_items.each do |item|
 			tag += print_menu_item(item, true)
 		end
-		tag += "</ul></span>"
-		tag += hidden_field_tag 'church[property]', 'nil', id: nil, class: 'church-property-hidden'
+		tag += "</ul>"
+		tag += hidden_field_tag "church[#{id}]", 'nil', id: nil, class: "church-#{id} hidden"
+		tag += "</span>"
 	end
 
 	def print_menu_item(item, top_level)

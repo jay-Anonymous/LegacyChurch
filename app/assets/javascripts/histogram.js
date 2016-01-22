@@ -5,7 +5,7 @@ function show_histogram_query(church_data_json, id) {
 
 	// Parse the data, and determine what church property we're binning over
 	var church_data = JSON.parse(church_data_json);
-	var property = $(id + ' .church-property-hidden').val();
+	var property = $(id + ' .church-property').val();
 
 	// Sort the data into bins according to the current grouping parameter (l1sort)
     var sortedData = getNestedData(church_data);

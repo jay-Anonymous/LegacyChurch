@@ -24,16 +24,15 @@ function load_dropdowns() {
 	});
 
 	$('.leaf-item').click(function(evt) {
-		var menuParent = $(this).parents('.query-menu');
-		var formParent = $(this).parents('.query');
+		var dropdownParent = $(this).parents('.dropdown');
 		var label = $(this).text();
 		var val = $(this).data('form-value');
 
-		menuParent.find('.selected').removeClass('selected');
+		dropdownParent.find('.selected').removeClass('selected');
 		$(this).addClass('selected');
-		formParent.find('.first-item a').text(label);
-		formParent.find('.church-property-hidden').val(val);
-		menuParent.toggle('fade', {}, 'fast');
+		dropdownParent.find('.first-item a').text(label);
+		dropdownParent.find('.hidden').val(val);
+		dropdownParent.find('.query-menu').toggle('fade', {}, 'fast');
 	});
 
 }
