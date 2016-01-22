@@ -1,25 +1,29 @@
 #!/usr/bin/env ruby
 
-require 'sqlite3'
+RUBY = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'])
 
-# Open a connection to the database and spreadsheet
-db = SQLite3::Database.new "legacy.db"
-pst = db.prepare "select * from church_data limit 1"
-db_cols = pst.columns
+correction_dir = Dir.new 'corrections'
+curr_id_file = File.open 'corrections/.id', 'r+'
+curr_id = curr_id_file.read.to_i
 
-# Include manual corrections here:
+puts "Processing corrections greater than #{curr_id}"
 
-puts "Swap data in 2005 for 883520 and 937007? [y/n]"
-response = STDIN.gets.chomp
-if response[0] == 'y' then
-	sql = 'update church_data set church_id=111111 where church_id=883520 and year=2005'
-	db.execute sql;
-	sql = 'update church_data set church_id=883520 where church_id=937007 and year=2005'
-	db.execute sql;
-	sql = 'update church_data set church_id=937007 where church_id=111111 and year=2005'
-	db.execute sql;
+correction_dir.each do |file|
+	/^correction_(\d{3})\.rb$/.match(file) do |m|
+		if (m[1].to_i > curr_id) then
+			FileUtils.cp 'legacy.db', ".legacy.db.#{m[1].to_i}"
+			success = system(RUBY, '-r', "./corrections/#{file}", '-e', 'do_correction')
+			if success then
+				curr_id_file.truncate 0
+				curr_id_file.rewind
+				curr_id_file.write  m[1].to_i
+			else 
+				puts "Error processing correction: #{file}\n"
+				break
+			end
+		end
+	end
 end
 
-puts "Done!"
-
+curr_id_file.close
 
