@@ -1,11 +1,12 @@
 
 
 /* Given some church data in JSON format, plot a histogram of the results */
-function show_histogram_query(church_data_json, id) {
+function show_comparison_query(church_data_json, id) {
 
 	// Parse the data, and determine what church property we're binning over
 	var church_data = JSON.parse(church_data_json);
-	var property = $(id + ' .church-property').val();
+	var property1 = $(id + ' .church-property1').val();
+	var property2 = $(id + ' .church-property2').val();
 
 	// Sort the data into bins according to the current grouping parameter (l1sort)
     var sortedData = getNestedData(church_data);
@@ -13,82 +14,47 @@ function show_histogram_query(church_data_json, id) {
 	// For each of our l1sort groups, display a histogram for the churches in that group
 	sortedData.forEach(function(group) {
 
-		// Bin the data
-		var binnedData = d3.layout.histogram()
-			.value(function(d) { return d[property]; })
-			.bins(get_hist_thresholds)(group.values);
-
-		// TODO doesn't work by city
-
-		var binWidth = binnedData[0].dx;
-		var minValue = binnedData[0].x;
-		var lastTick = binnedData[binnedData.length - 1].x;
-		var maxValue = lastTick + binWidth;
+		var minXValue = d3.min(group.values, function(el) { return el[property1]; });
+		var maxXValue = d3.max(group.values, function(el) { return el[property1]; });
+		var minYValue = d3.min(group.values, function(el) { return el[property2]; });
+		var maxYValue = d3.max(group.values, function(el) { return el[property2]; });
+		var xTickInterval = (maxXValue - minXValue) / 10;
+		var yTickInterval = (maxYValue - minYValue) / 10;
 
 		// x and y are our scaling functions to convert from data space to screen space
 		var x = d3.scale.linear()
-			.domain([minValue, maxValue])
+			.domain([minXValue, maxXValue])
 		var y = d3.scale.linear()
-			.domain([0, d3.max(binnedData, function(d) { return d.y; })]);
+			.domain([minYValue, maxYValue]);
 
 		// Initialize the chart region
 		var chart = initChart(id, 			// CSS selector
 							  group.key,	// Title of our current (l1sort) group 
 							  x, y, 		// Scaling functions
-							  d3.range(minValue, maxValue, binWidth), 	// x-axis tick values
+							  d3.range(minXValue, maxXValue, xTickInterval), 	// x-axis tick values
 							  function(tick) {							// x-axis tick formatting
-								tick = d3.format(",.0f")(tick);
-								if (tick == d3.format(",.0f")(lastTick))	
-									tick = "≥" + tick;
-								else if (tick == d3.format(",.0f")(maxValue)) tick = '';
-								return tick;
+								return d3.format(",.0f")(tick);
+							  },
+							  d3.range(minYValue, maxYValue, yTickInterval),
+							  function(tick) {
+								return d3.format(",.0f")(tick);
 							  });
 
 		// Create a bar object for each 'bin' in our histogram
-		var bar = chart.object.selectAll(".bar")
-			.data(binnedData)
-			.enter().append("g")
-			.attr("class", "chart-element bar")
-			.attr("transform", function(d, i) { 
-				// The transform positions the top left of the bar
-				return "translate(" + x(d.x) + "," + y(0.95 * d.y) + ")"; 
-			})
-			.on("click", function(data) {
-				d3.select(id + " .selected").attr("class", "chart-element bar");
-				d3.select(this).attr("class", "chart-element bar selected");
+		var points = chart.object.selectAll("circle")
+			.data(group.values)
+			.enter().append("circle");
+
+		var pointAttrs = points
+			.attr("class", "chart-element point")
+			.attr("cx", function(el) { return x(el[property1]); })
+			.attr("cy", function(el) { return y(el[property2]); })
+			.attr("r", 3);
+			/*.on("click", function(data) {
+				d3.select(id + " .selected").attr("class", "chart-element point");
+				d3.select(this).attr("class", "chart-element point selected");
 				display_bin(data, id, property);
-			});
-
-		// Each bar is actually displayed here by drawing a rectangle from top-left to bottom-right
-		bar.append("rect")
-			.attr("x", 1)
-			.attr("width", x(minValue + binWidth) - 1)
-			.attr("height", function(d) { return chart.height - y(0.95 * d.y); })
-
-		// Add a label to the top of each bar to indicate the number of objects in the bin
-		bar.append("text")
-			.attr("x", x(minValue + binWidth) / 2)
-			.attr("y", -10)
-			.attr("dy", ".75em")
-			.text(function(d) { return d.y; });
-
-		// Compute the median line and draw it on the graph
-		var med_value = median(group.values.map(function(d) { return d[property]; }).sort());
-		chart.object.append("line")
-			.attr("x1", x(med_value))
-			.attr("x2", x(med_value))
-			.attr("y1", 15)
-			.attr("y2", chart.height)
-			.attr("stroke-width", 1)
-			.attr("stroke-dasharray", "10,10")
-			.attr("stroke", "black");
-
-		chart.object.append("text")
-			.attr("x", x(med_value) + 5)
-			.attr("y", 25)
-			.attr("class", "chart-element median")
-			.attr("text-anchor", "start")
-			.text(d3.format(",.0f")(med_value));
+			});*/
 	});
 }
 
