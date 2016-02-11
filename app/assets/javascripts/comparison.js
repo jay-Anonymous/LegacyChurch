@@ -40,85 +40,27 @@ function show_comparison_query(church_data_json, id) {
 								return d3.format(",.0f")(tick);
 							  });
 
-		// Create a bar object for each 'bin' in our histogram
+		// Create a point for each data element
 		var points = chart.object.selectAll("circle")
 			.data(group.values)
-			.enter().append("circle");
-
-		var pointAttrs = points
+			.enter().append("circle")
 			.attr("class", "chart-element point")
 			.attr("cx", function(el) { return x(el[property1]); })
 			.attr("cy", function(el) { return y(el[property2]); })
-			.attr("r", 3);
-			/*.on("click", function(data) {
-				d3.select(id + " .selected").attr("class", "chart-element point");
-				d3.select(this).attr("class", "chart-element point selected");
-				display_bin(data, id, property);
-			});*/
+			.attr("r", 3)
+			.on("click", function(data) {
+				$(id + " .selected")
+					.attr("class", "chart-element point")
+					.attr("r", 3);
+				$(this)
+					.attr("class", "chart-element point selected")
+					.attr("r", 7);
+				display_props_over_time([data], [property1, property2], id);
+			});
 	});
 }
 
-/* Display a list of the churches in a selected bin */
-function display_bin(data, id, property) {
-	$(id + " .data-details").remove();
-	$(id).append('<div class="data-details">');
-	var details = $(id + " .data-details");
-	details.append("<table>");
-	details.append("<th>Church ID</th>\n");
-    details.append("<th>Name</th>");
-    details.append("<th>District</th>");
-    details.append("<th>Location</th>");
-	details.append("<th>" + property + "</th>\n");
 
-	data.forEach(function(el) {
-		row = "<tr>"
-		row += "<td><a href=\"churches/" + el.id + "\">" + el.id + "</a></td>";
-		row += "<td>" + el.name + "</td>";
-		row += "<td>" + el.district + "</td>";
-		row += "<td>" + el.city + "</td>";
-		row += "<td>" + el[property] + "</td>";
-		row += "</tr>"
-		details.append(row);
-	});
-	details.append("</table>");
-	details.append("</div>");
-}
-
-/* Compute the histogram thresholds; we use the Freedman-Diaconis rule, which is based off
- * the interquartile range and seems to be a good balance of granularity versus compression */
-function get_hist_thresholds(range, values) {
-	var fence_t = 2;
-
-	var lower_fence = q1(values) - fence_t * iqr(values);
-	var upper_fence = q3(values) + fence_t * iqr(values);
-
-	// Anything below the lower threshold or above the upper threshold gets set to the
-	// threshold value so that the binning function puts them in the right place
-	for (i = 0; i < values.length; i++) {
-		if (values[i] > lower_fence) break;
-		values[i] = lower_fence;
-	}
-
-	for (i = values.length - 1; i >= 0; i--) {
-		if (values[i] < upper_fence) break;
-		values[i] = upper_fence;
-	}
-
-	// Start at the lowest threshold, and add a new threshold for every bin-size
-	// until we get to the upper threshold
-	var thresholds = [range[0]];
-
-	var bin_size = (2 * iqr(values)) / Math.pow(values.length, 1/3);
-	var curr = values[0] + bin_size;
-
-	while (curr < upper_fence) {
-		thresholds.push(curr);
-		curr += bin_size;
-	}
-	if (range[1] > upper_fence) thresholds.push(range[1]);
-
-	return thresholds;
-}
 
 
 

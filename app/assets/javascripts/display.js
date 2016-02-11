@@ -1,6 +1,6 @@
 
 /* Initialize the chart display area */
-function initChart(id, title, xScale, yScale, xTickValues, xTickFormat, yTickValues, yTickFormat) {
+function initChart(id, dataObj, title, xScale, yScale, xTickValues, xTickFormat, yTickValues, yTickFormat) {
 
 	// Set up the maximum extents of the chart
     var margin = {top: 15, right: 20, bottom: 30, left: 50};
@@ -74,10 +74,10 @@ function initChart(id, title, xScale, yScale, xTickValues, xTickFormat, yTickVal
  * absolute - absolute/relative checkbox
  * group - data groups by district/city/etc.
  */
-function initControls(id, chartFn, options) { 
+function initControls(id, dataObj, chartFn, options) { 
 	var redrawChart = function() {
 		$(id + ' .query-results').empty();
-		window[chartFn](churches, id);
+		window[chartFn](dataObj, id);
 	};
 
 	// Show the controls
@@ -105,8 +105,8 @@ function initControls(id, chartFn, options) {
 	    if (useAbsScale) {
 			$(id + ' .y-axis-range').slider('option', {
 				min: 0, 
-				max: churchMaxValue, 
-				values: [0, churchMaxValue],
+				max: dataObj.maxValue, 
+				values: [0, dataObj.maxValue],
 			});
 		}
 		else {
@@ -128,11 +128,11 @@ function initControls(id, chartFn, options) {
 		var grouping = $(this).val();
 		switch (grouping) {
 			case 'City':
-				l1sort = function(el) { return el.city; };
+				dataObj.grouping = function(el) { return el.city; };
 				break;
 
 			case 'District':
-				l1sort = function(el) { return el.district; };
+				dataObj.grouping = function(el) { return el.district; };
 				break;
 
 /*			case 'Value':
@@ -169,7 +169,7 @@ function initControls(id, chartFn, options) {
 				break;*/
 			case 'None': 
 			default:
-				l1sort = function(e) { return ''; };
+				dataObj.grouping = function(e) { return ''; };
 		}
 		redrawChart();
 	});
@@ -183,9 +183,9 @@ function initControls(id, chartFn, options) {
  * group is given by the global l1sort function.  An optional secondary sorting function
  * can be provided if desired. 
  */
-function getNestedData(data, secondary, secondarySort) {
+function getNestedData(data, grouping, secondary, secondarySort) {
 	var sorted = d3.nest()
-        .key(l1sort).sortKeys(function(e1, e2) {
+        .key(grouping).sortKeys(function(e1, e2) {
             return +e1 < +e2 ? -1 :
                    +e1 == +e2 ? 0 :
                    1;
@@ -198,4 +198,57 @@ function getNestedData(data, secondary, secondarySort) {
     return sorted.entries(data);
 }
 
+/* Display a list of the churches in a selected group */
+function display_bin(data, property, id) {
+	$(id + " .data-details").remove();
+	$(id).append('<div class="data-details">');
+	var details = $(id + " .data-details");
+	details.append("<table>");
+	details.append("<th>Church ID</th>\n");
+    details.append("<th>Name</th>");
+    details.append("<th>District</th>");
+    details.append("<th>Location</th>");
+	details.append("<th>" + property + "</th>\n");
+
+	data.forEach(function(el) {
+		row = "<tr>"
+		row += "<td><a href=\"churches/" + el.id + "\">" + el.id + "</a></td>";
+		row += "<td>" + el.name + "</td>";
+		row += "<td>" + el.district + "</td>";
+		row += "<td>" + el.city + "</td>";
+		row += "<td>" + el[property] + "</td>";
+		row += "</tr>"
+		details.append(row);
+	});
+	details.append("</table>");
+	details.append("</div>");
+}
+
+/* Display a detailed view of a selected church over its history */
+function display_props_over_time(data, properties, id) {
+    $(id + " .data-details").remove();
+    $(id).append('<div class="data-details">');
+    var details = $(id + " .data-details");
+
+    details.append("<a href=\"churches/" + data[0].id + "\">" + data[0].id + "</a></br>");
+    details.append("Name: " + data[0].name + "</br>");
+    details.append("District: " + data[0].district + "</br>");
+    details.append("Location: " + data[0].city + ", " + data[0].state + "</br></br>");
+    details.append("<table>");
+	properties.forEach(function(prop) {
+		details.append("<th>" + prop + "</th>");
+	});
+	details.append("<th>Year</th>");
+
+    data.forEach(function(el) {
+		row = "<tr>";
+		properties.forEach(function(prop) {
+			row += "<td>" + d3.format(".2f")(el[prop]) + "</td>";
+		});
+		row += "<td>" + el.year + "</td></tr>";
+        details.append(row);
+    });
+    details.append("</table>");
+    details.append("</div>");
+}
 

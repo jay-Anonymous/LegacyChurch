@@ -44,10 +44,6 @@
 <% end %>
 
 <script type="text/javascript">
-var churches = undefined;
-var churchMinValue = undefined;
-var churchMaxValue = undefined;
-var l1sort = function() { return '' } 
 
 $(document).ready(function() {
 	$(".query").on("ajax:success", function(e, data, status, xhr) {
@@ -56,10 +52,18 @@ $(document).ready(function() {
 		var funcName = $(parentId).data("function");
 		var opts = $(parentId).data("control-options");
 
-		initControls(parentId, funcName, opts);
+		var churches = JSON.parse(xhr.responseText);
+		var properties = $(parentId + ' .church-property').val();
+		var dataObj = { "churches": churches,
+						"properties": properties,
+						"minValue": d3.min(churches, function (el) { return el[properties]; }),
+						"maxValue": d3.max(churches, function (el) { return el[properties]; }),
+						"grouping": function(el) { return ''; }
+		};
+
+		initControls(parentId, dataObj, funcName, opts);
 		$(parentId + " .query-results").empty();
-		churches = xhr.responseText;
-		window[funcName](churches, parentId);
+		window[funcName](dataObj, parentId);
 
 	}).on("ajax:error", function (e, xhr, status, error) {
 		$(".data-table").append("<p>ERROR</p>");

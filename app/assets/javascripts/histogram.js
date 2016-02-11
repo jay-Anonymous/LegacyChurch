@@ -1,14 +1,14 @@
 
 
 /* Given some church data in JSON format, plot a histogram of the results */
-function show_histogram_query(church_data_json, id) {
+function show_histogram_query(dataObj, id) {
 
 	// Parse the data, and determine what church property we're binning over
-	var church_data = JSON.parse(church_data_json);
-	var property = $(id + ' .church-property').val();
+	var church_data = dataObj.churches;
+	var property = dataObj.properties;
 
 	// Sort the data into bins according to the current grouping parameter (l1sort)
-    var sortedData = getNestedData(church_data);
+    var sortedData = getNestedData(church_data, dataObj.grouping);
 
 	// For each of our l1sort groups, display a histogram for the churches in that group
 	sortedData.forEach(function(group) {
@@ -33,6 +33,7 @@ function show_histogram_query(church_data_json, id) {
 
 		// Initialize the chart region
 		var chart = initChart(id, 			// CSS selector
+							  dataObj,
 							  group.key,	// Title of our current (l1sort) group 
 							  x, y, 		// Scaling functions
 							  d3.range(minValue, maxValue, binWidth), 	// x-axis tick values
@@ -54,9 +55,9 @@ function show_histogram_query(church_data_json, id) {
 				return "translate(" + x(d.x) + "," + y(0.95 * d.y) + ")"; 
 			})
 			.on("click", function(data) {
-				d3.select(id + " .selected").attr("class", "chart-element bar");
-				d3.select(this).attr("class", "chart-element bar selected");
-				display_bin(data, id, property);
+				$(id + " .selected").attr("class", "chart-element bar");
+				$(this).attr("class", "chart-element bar selected");
+				display_bin(data, property, id);
 			});
 
 		// Each bar is actually displayed here by drawing a rectangle from top-left to bottom-right
@@ -90,32 +91,6 @@ function show_histogram_query(church_data_json, id) {
 			.attr("text-anchor", "start")
 			.text(d3.format(",.0f")(med_value));
 	});
-}
-
-/* Display a list of the churches in a selected bin */
-function display_bin(data, id, property) {
-	$(id + " .data-details").remove();
-	$(id).append('<div class="data-details">');
-	var details = $(id + " .data-details");
-	details.append("<table>");
-	details.append("<th>Church ID</th>\n");
-    details.append("<th>Name</th>");
-    details.append("<th>District</th>");
-    details.append("<th>Location</th>");
-	details.append("<th>" + property + "</th>\n");
-
-	data.forEach(function(el) {
-		row = "<tr>"
-		row += "<td><a href=\"churches/" + el.id + "\">" + el.id + "</a></td>";
-		row += "<td>" + el.name + "</td>";
-		row += "<td>" + el.district + "</td>";
-		row += "<td>" + el.city + "</td>";
-		row += "<td>" + el[property] + "</td>";
-		row += "</tr>"
-		details.append(row);
-	});
-	details.append("</table>");
-	details.append("</div>");
 }
 
 /* Compute the histogram thresholds; we use the Freedman-Diaconis rule, which is based off

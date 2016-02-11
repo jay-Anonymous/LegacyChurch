@@ -67,20 +67,22 @@ text { font: 10px sans-serif; }
 
 .data-details tr td, .data-details th { padding-right: 30px; text-align: left; }
 
-/* Histogram */
-.chart-element.bar { fill: steelblue; }
-.chart-element.bar:hover {fill: sandybrown; }
-.chart-element.bar.selected, .chart-element.bar.selected:hover { fill: orange; }
+/* Generic chart elements */
+.chart-element { fill: steelblue; }
+.chart-element:hover {fill: sandybrown; }
+.chart-element.selected, .chart-element.selected:hover { fill: orange; }
 
 .bar text, .axis text { text-anchor: middle; fill: black; }
 .median text { text-anchor: start; }
 
-/* Time series */
+/* Time series specializations */
 .chart-element.line { fill: none; stroke: steelblue; stroke-width: 2px; }
-.chart-element.line:hover {stroke: sandybrown; stroke-width: 4px; }
+.chart-element.line:hover { fill: none; stroke: sandybrown; stroke-width: 4px; }
 .chart-element.line.selected, .chart-element.line.selected:hover 
 { 
+	fill: none;
 	stroke: orange; 
 	stroke-width: 4px; 
 }
+
 

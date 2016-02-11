@@ -1,20 +1,16 @@
 
 /* Show a plot of the change in a value over time for all the churches in a JSON object */
-function show_time_series_query(church_data_json, id) {
+function show_time_series_query(dataObj, id) {
 
 	// Parse the incoming data
-    var church_data = JSON.parse(church_data_json);
-	var property = $(id + ' .church-property').val();
+	var church_data = dataObj.churches;
+	var property = dataObj.properties;
     var get_year = function(el) { return el.year; };
-    var get_prop = function(el) { return el[property]; };
 
 	// Compute the y-axis values
     var yMin = $(id + ' .y-axis-range').slider('values', 0);
     var yMax = $(id + ' .y-axis-range').slider('values', 1);
     var useAbsScale = $(id + ' .y-axis-absolute').is(':checked');
-
-    churchMinValue = d3.min(church_data, get_prop);
-    churchMaxValue = d3.max(church_data, get_prop);
 
 	// Set up our scaling functions
     var x = d3.scale.linear()
@@ -34,7 +30,8 @@ function show_time_series_query(church_data_json, id) {
 
 	// Sort the data according to our l1sort function.  Provide a secondary sorting
 	// function to group each of the churches by their ID, from lowest-to-highest year
-    var sortedData = getNestedData(church_data, function(el) { return el.id; },
+    var sortedData = getNestedData(church_data, dataObj.grouping, 
+			function(el) { return el.id; },
 			function(e1, e2) {
 				return e1.year < e2.year ? -1 :
 					   e1.year == e2.year ? 0 :
@@ -45,8 +42,8 @@ function show_time_series_query(church_data_json, id) {
     sortedData.forEach(function(group) {
 
 		// Initialize the chart area
-        var chart = initChart(id, group.key, // CSS selector, chart title element
-				x, y,						 // scaling functions 
+        var chart = initChart(id, dataObj, group.key, // CSS selector, chart title element
+				x, y,						 	      // scaling functions 
                 d3.range(minYear, maxYear + 1, 1), d3.format("d"),	// x-axis ticks/format 
 
 				// y-axis ticks: if we're using absolute scaling, we want a larger step-size
@@ -61,9 +58,11 @@ function show_time_series_query(church_data_json, id) {
 
 		// For each church in our group, draw a line; scale the values if necessary
         group.values.forEach(function(church) {
+			var values = church.values;
             if (!useAbsScale) {
+				values = $.extend(true, [], church.values);
 				var normal = -1;
-				church.values.forEach(function(el) {
+				values.forEach(function(el) {
 					if (normal == -1 && el[property] != 0)
 						normal = el[property];
 					if (normal != -1)
@@ -71,37 +70,16 @@ function show_time_series_query(church_data_json, id) {
 				});
             }
             chart.object.append("path")
-                .datum(church.values)
+                .datum(values)
                 .attr("class", "chart-element line")
                 .attr("d", line)
                 .on("click", function(data) {
-                    d3.select(id + " .selected").attr("class", "chart-element line");
-                    d3.select(this).attr("class", "chart-element line selected");
-                    display_prop_over_time(data, property, id);
+                    $(id + " .selected").attr("class", "chart-element line");
+                    $(this).attr("class", "chart-element line selected");
+                    display_props_over_time(data, [property], id);
                 });
         });
 
     });
-}
-
-/* Display a detailed view of a selected church over its history */
-function display_prop_over_time(data, property, id) {
-    $(id + " .data-details").remove();
-    $(id).append('<div class="data-details">');
-    var details = $(id + " .data-details");
-
-    details.append("<a href=\"churches/" + data[0].id + "\">" + data[0].id + "</a></br>");
-    details.append("Name: " + data[0].name + "</br>");
-    details.append("District: " + data[0].district + "</br>");
-    details.append("Location: " + data[0].city + ", " + data[0].state + "</br></br>");
-    details.append("<table>");
-    details.append("<th>" + property + "</th><th>Year</th>");
-
-    data.forEach(function(el) {
-        row = "<tr><td>" + d3.format(".2f")(el[property]) + "</td><td>" + el.year + "</td></tr>";
-        details.append(row);
-    });
-    details.append("</table>");
-    details.append("</div>");
 }
 
