@@ -84,43 +84,35 @@ function initControls(id, dataObj, chartFn, options) {
 	$(id + ' .query-controls').show();
 
 	// The y-axis slider controls the minimum and maximum values on the y-axis.
-    $(id + ' .y-axis-range').slider({
+    $(id + ' .axis-range-1, ' + id + ' .axis-range-2').slider({
         range: true,
         min: -10,
         max: 10,
         values: [ -4, 4],
         slide: redrawChart,
     });
-	if (options && typeof(options.range) != "undefined" && options.range === false) {
-		$(id + ' .y-axis-range').slider('option', 'disabled', true);
-		$(id + ' .y-axis-range').parent().css('color', 'lightgrey');
+	if (options && typeof(options.y_axis_range) != "undefined" && options.range === false) {
+		$(id + ' .axis-range-1').slider('option', 'disabled', true);
+		$(id + ' .axis-range-1').parent().css('color', 'lightgrey');
+	}
+	if (options && typeof(options.x_axis_range) != "undefined" && options.range === false) {
+		$(id + ' .axis-range-2').slider('option', 'disabled', true);
+		$(id + ' .axis-range-2').parent().css('color', 'lightgrey');
 	}
 
-    $(id + ' .y-axis-absolute').change(function() { 
-		var useAbsScale = $(id + ' .y-axis-absolute').is(':checked');
-
-		// If relative values are used, this is capped between 2^{-10} and 2^{10}.
-		// If absolute values are used, it is capped between 0 and the maximum value
-		//   for this property
-	    if (useAbsScale) {
-			$(id + ' .y-axis-range').slider('option', {
-				min: 0, 
-				max: dataObj.maxValue, 
-				values: [0, dataObj.maxValue],
-			});
-		}
-		else {
-			$(id + ' .y-axis-range').slider('option', {
-				max: 10, 
-				min: -10, 
-				values: [-4, 4],
-			});
-		}
+	// Update the slider scales if we toggle the checkbox
+    $(id + ' .axis-absolute').change(function() { 
+		changeSliderScales(id, dataObj);
 		redrawChart(); 
 	});
+
+	if (options && typeof(options.absolute_default) != "undefined" && options.absolute_default === true) {
+		$(id + ' .axis-absolute').prop('checked', true);
+		changeSliderScales(id, dataObj);
+	}
 	if (options && typeof(options.absolute) != "undefined" && options.absolute === false) {
-		$(id + ' .y-axis-absolute').attr('disabled', true);
-		$(id + ' .y-axis-absolute').parent().css('color', 'lightgrey');
+		$(id + ' .axis-absolute').attr('disabled', true);
+		$(id + ' .axis-absolute').parent().css('color', 'lightgrey');
 	}
 
 	// The global l1sort function controls how data is grouped by the getNestedData function
@@ -176,6 +168,33 @@ function initControls(id, dataObj, chartFn, options) {
 	if (options && typeof(options.group) != "undefined" && options.group === false) {
 		$(id + ' .data-grouping').attr('disabled', true);
 		$(id + ' .data-grouping').parent().css('color', 'lightgrey');
+	}
+}
+
+function changeSliderScales(id, dataObj) {
+	var useAbsScale = $(id + ' .axis-absolute').is(':checked');
+
+	// If relative values are used, this is capped between 2^{-10} and 2^{10}.
+	// If absolute values are used, it is capped between 0 and the maximum value
+	//   for this property
+	if (useAbsScale) {
+		$(id + ' .axis-range-1').slider('option', {
+			min: dataObj.minValues[0], 
+			max: dataObj.maxValues[0], 
+			values: [dataObj.minValues[0], dataObj.maxValues[0]],
+		});
+		$(id + ' .axis-range-2').slider('option', {
+			min: dataObj.minValues[1],
+			max: dataObj.maxValues[1],
+			values: [dataObj.minValues[1], dataObj.maxValues[0]],
+		});
+	}
+	else {
+		$(id + ' .axis-range-1, ' + id + ' .axis-range-2').slider('option', {
+			max: 10, 
+			min: -10, 
+			values: [-4, 4],
+		});
 	}
 }
 

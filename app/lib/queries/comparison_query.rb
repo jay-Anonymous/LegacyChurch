@@ -18,6 +18,9 @@ class ComparisonQuery < AbstractQuery
 		    .order('churches.id asc')
 	end
 
+	def self.control_options
+		'{"absolute": false, "absolute_default": true}'.html_safe
+	end
 end
 
 end

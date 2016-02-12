@@ -4,13 +4,13 @@ function show_time_series_query(dataObj, id) {
 
 	// Parse the incoming data
 	var church_data = dataObj.churches;
-	var property = dataObj.properties;
+	var property = dataObj.properties[0].value;
     var get_year = function(el) { return el.year; };
 
 	// Compute the y-axis values
-    var yMin = $(id + ' .y-axis-range').slider('values', 0);
-    var yMax = $(id + ' .y-axis-range').slider('values', 1);
-    var useAbsScale = $(id + ' .y-axis-absolute').is(':checked');
+    var yMin = $(id + ' .axis-range-1').slider('values', 0);
+    var yMax = $(id + ' .axis-range-1').slider('values', 1);
+    var useAbsScale = $(id + ' .axis-absolute').is(':checked');
 
 	// Set up our scaling functions
     var x = d3.scale.linear()

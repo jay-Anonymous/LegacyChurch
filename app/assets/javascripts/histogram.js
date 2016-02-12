@@ -5,7 +5,7 @@ function show_histogram_query(dataObj, id) {
 
 	// Parse the data, and determine what church property we're binning over
 	var church_data = dataObj.churches;
-	var property = dataObj.properties;
+	var property = dataObj.properties[0].value;
 
 	// Sort the data into bins according to the current grouping parameter (l1sort)
     var sortedData = getNestedData(church_data, dataObj.grouping);

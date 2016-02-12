@@ -16,7 +16,7 @@ class HistogramQuery < AbstractQuery
 	end
 
 	def self.control_options
-		'{"range": false, "absolute": false}'.html_safe
+		'{"y-axis-range": false, "x-axis-range": false, "absolute": false}'.html_safe
 	end
 end
 

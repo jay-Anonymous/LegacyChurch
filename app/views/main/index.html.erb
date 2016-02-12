@@ -20,13 +20,18 @@
 
 		<div class="query-controls">
 			<div class="control">
-				<div style="margin-bottom: 5px">Value range:</div>
-				<div class="y-axis-range"></div>
+				<div style="margin-bottom: 5px">Y-axis range:</div>
+				<div class="axis-range-1"></div>
+			</div>
+
+			<div class="control">
+				<div style="margin-bottom: 5px">X-axis range:</div>
+				<div class="axis-range-2"></div>
 			</div>
 
 			<div class="control">
 				<label>Show absolute values:</label>
-				<input type="checkbox" class="y-axis-absolute"/>
+				<input type="checkbox" class="axis-absolute"/>
 			</div>
 
 			<div class="control">
@@ -53,11 +58,17 @@ $(document).ready(function() {
 		var opts = $(parentId).data("control-options");
 
 		var churches = JSON.parse(xhr.responseText);
-		var properties = $(parentId + ' .church-property').val();
+		var properties = $(parentId + ' .church-property');
+		var minValues = []; $.each(properties, function (i) {
+			minValues.push(d3.min(churches, function (el) { return el[properties[i].value] }));
+		});
+		var maxValues = []; $.each(properties, function (i) {
+			maxValues.push(d3.max(churches, function (el) { return el[properties[i].value] }));
+		});
 		var dataObj = { "churches": churches,
 						"properties": properties,
-						"minValue": d3.min(churches, function (el) { return el[properties]; }),
-						"maxValue": d3.max(churches, function (el) { return el[properties]; }),
+						"minValues": minValues,
+						"maxValues": maxValues,
 						"grouping": function(el) { return ''; }
 		};
 

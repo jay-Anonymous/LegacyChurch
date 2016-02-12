@@ -1,41 +1,43 @@
 
 
 /* Given some church data in JSON format, plot a histogram of the results */
-function show_comparison_query(church_data_json, id) {
+function show_comparison_query(dataObj, id) {
 
 	// Parse the data, and determine what church property we're binning over
-	var church_data = JSON.parse(church_data_json);
-	var property1 = $(id + ' .church-property1').val();
-	var property2 = $(id + ' .church-property2').val();
+	var church_data = dataObj.churches;
+	var property0 = dataObj.properties[0].value;
+	var property1 = dataObj.properties[1].value;
+
+	var xMin = $(id + ' .axis-range-1').slider('values', 0);
+	var xMax = $(id + ' .axis-range-1').slider('values', 1);
+    var yMin = $(id + ' .axis-range-2').slider('values', 0);
+    var yMax = $(id + ' .axis-range-2').slider('values', 1);
 
 	// Sort the data into bins according to the current grouping parameter (l1sort)
-    var sortedData = getNestedData(church_data);
+    var sortedData = getNestedData(church_data, dataObj.grouping);
 
 	// For each of our l1sort groups, display a histogram for the churches in that group
 	sortedData.forEach(function(group) {
 
-		var minXValue = d3.min(group.values, function(el) { return el[property1]; });
-		var maxXValue = d3.max(group.values, function(el) { return el[property1]; });
-		var minYValue = d3.min(group.values, function(el) { return el[property2]; });
-		var maxYValue = d3.max(group.values, function(el) { return el[property2]; });
-		var xTickInterval = (maxXValue - minXValue) / 10;
-		var yTickInterval = (maxYValue - minYValue) / 10;
+		var xTickInterval = (xMax - xMin) / 10;
+		var yTickInterval = (yMax - yMin) / 10;
 
 		// x and y are our scaling functions to convert from data space to screen space
 		var x = d3.scale.linear()
-			.domain([minXValue, maxXValue])
+			.domain([xMin, xMax])
 		var y = d3.scale.linear()
-			.domain([minYValue, maxYValue]);
+			.domain([yMin, yMax]);
 
 		// Initialize the chart region
 		var chart = initChart(id, 			// CSS selector
+							  dataObj,
 							  group.key,	// Title of our current (l1sort) group 
 							  x, y, 		// Scaling functions
-							  d3.range(minXValue, maxXValue, xTickInterval), 	// x-axis tick values
+							  d3.range(xMin, xMax, xTickInterval), 	// x-axis tick values
 							  function(tick) {							// x-axis tick formatting
 								return d3.format(",.0f")(tick);
 							  },
-							  d3.range(minYValue, maxYValue, yTickInterval),
+							  d3.range(yMin, yMax, yTickInterval),
 							  function(tick) {
 								return d3.format(",.0f")(tick);
 							  });
@@ -45,8 +47,8 @@ function show_comparison_query(church_data_json, id) {
 			.data(group.values)
 			.enter().append("circle")
 			.attr("class", "chart-element point")
-			.attr("cx", function(el) { return x(el[property1]); })
-			.attr("cy", function(el) { return y(el[property2]); })
+			.attr("cx", function(el) { return x(el[property0]); })
+			.attr("cy", function(el) { return y(el[property1]); })
 			.attr("r", 3)
 			.on("click", function(data) {
 				$(id + " .selected")
@@ -55,7 +57,7 @@ function show_comparison_query(church_data_json, id) {
 				$(this)
 					.attr("class", "chart-element point selected")
 					.attr("r", 7);
-				display_props_over_time([data], [property1, property2], id);
+				display_props_over_time([data], [property0, property1], id);
 			});
 	});
 }

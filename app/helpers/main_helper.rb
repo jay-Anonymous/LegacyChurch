@@ -49,7 +49,7 @@ module MainHelper
 			tag += print_menu_item(item, true)
 		end
 		tag += "</ul>"
-		tag += hidden_field_tag "church[#{id}]", 'nil', id: nil, class: "church-#{id} hidden"
+		tag += hidden_field_tag "church[#{id}]", 'nil', id: nil, class: "church-property hidden"
 		tag += "</span>"
 	end
 

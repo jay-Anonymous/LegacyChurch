@@ -16,6 +16,9 @@ class TimeSeriesQuery < AbstractQuery
 		    .order('churches.id asc')
 	end
 
+	def self.control_options
+		'{"x-axis-range": false}'.html_safe
+	end
 end
 
 end
