@@ -8,8 +8,8 @@ function show_time_series_query(dataObj, id) {
     var get_year = function(el) { return el.year; };
 
 	// Compute the y-axis values
-    var yMin = $(id + ' .axis-range-1').slider('values', 0);
-    var yMax = $(id + ' .axis-range-1').slider('values', 1);
+    var yMin = $(id + ' .y-axis-range').slider('values', 0);
+    var yMax = $(id + ' .y-axis-range').slider('values', 1);
     var useAbsScale = $(id + ' .axis-absolute').is(':checked');
 
 	// Set up our scaling functions
@@ -41,8 +41,10 @@ function show_time_series_query(dataObj, id) {
 	// For each of our l1sort groups, display a separate chart
     sortedData.forEach(function(group) {
 
+		var pName = $(id + ' .first-item a')[0].innerHTML;
 		// Initialize the chart area
-        var chart = initChart(id, dataObj, group.key, // CSS selector, chart title element
+        var chart = initChart(id, dataObj, 
+				make_title(id, pName, group.key), // CSS selector, chart title element
 				x, y,						 	      // scaling functions 
                 d3.range(minYear, maxYear + 1, 1), d3.format("d"),	// x-axis ticks/format 
 

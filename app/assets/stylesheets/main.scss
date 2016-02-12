@@ -72,8 +72,8 @@ text { font: 10px sans-serif; }
 .chart-element:hover {fill: sandybrown; }
 .chart-element.selected, .chart-element.selected:hover { fill: orange; }
 
-.bar text, .axis text { text-anchor: middle; fill: black; }
-.median text { text-anchor: start; }
+text.info, .axis text { text-anchor: middle; fill: black; }
+text.median { text-anchor: start; }
 
 /* Time series specializations */
 .chart-element.line { fill: none; stroke: steelblue; stroke-width: 2px; }
@@ -84,5 +84,7 @@ text { font: 10px sans-serif; }
 	stroke: orange; 
 	stroke-width: 4px; 
 }
+
+.chart-element.history { fill:none; stroke: orange; stroke-width: 1px; }
 
 

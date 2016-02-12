@@ -17,7 +17,7 @@ class TimeSeriesQuery < AbstractQuery
 	end
 
 	def self.control_options
-		'{"x-axis-range": false}'.html_safe
+		'{"x_axis_range": false}'.html_safe
 	end
 end
 

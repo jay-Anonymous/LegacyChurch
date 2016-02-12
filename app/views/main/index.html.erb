@@ -10,7 +10,7 @@
 	  data-function="show_<%= ActiveSupport::Inflector.underscore(to_id(q)) %>"
       data-control-options='<%= q::control_options %>'
 	  >
-		<%= form_tag 'respond_to.json', remote: true, class: 'query' do %>
+		<%= form_tag 'exec_query.json', remote: true, class: 'query' do %>
 			<% form_data = @params[:church] unless (!@params or q != query_type.constantize) %>
 			<%= display(q, ':church', form_data) %>
 			</br> <%= submit_tag('Go!') %>
@@ -20,13 +20,13 @@
 
 		<div class="query-controls">
 			<div class="control">
-				<div style="margin-bottom: 5px">Y-axis range:</div>
-				<div class="axis-range-1"></div>
+				<div style="margin-bottom: 5px">X-axis range: [<span class="x-axis-min"></span>,<span class="x-axis-max"></span>]</div>
+				<div class="x-axis-range"></div>
 			</div>
 
 			<div class="control">
-				<div style="margin-bottom: 5px">X-axis range:</div>
-				<div class="axis-range-2"></div>
+				<div style="margin-bottom: 5px">Y-axis range: [<span class="y-axis-min"></span>,<span class="y-axis-max"></span>]</div>
+				<div class="y-axis-range"></div>
 			</div>
 
 			<div class="control">

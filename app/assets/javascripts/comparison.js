@@ -5,13 +5,13 @@ function show_comparison_query(dataObj, id) {
 
 	// Parse the data, and determine what church property we're binning over
 	var church_data = dataObj.churches;
-	var property0 = dataObj.properties[0].value;
-	var property1 = dataObj.properties[1].value;
+	var property1 = dataObj.properties[0].value;
+	var property2 = dataObj.properties[1].value;
 
-	var xMin = $(id + ' .axis-range-1').slider('values', 0);
-	var xMax = $(id + ' .axis-range-1').slider('values', 1);
-    var yMin = $(id + ' .axis-range-2').slider('values', 0);
-    var yMax = $(id + ' .axis-range-2').slider('values', 1);
+	var xMin = $(id + ' .x-axis-range').slider('values', 0);
+	var xMax = $(id + ' .x-axis-range').slider('values', 1);
+    var yMin = $(id + ' .y-axis-range').slider('values', 0);
+    var yMax = $(id + ' .y-axis-range').slider('values', 1);
 
 	// Sort the data into bins according to the current grouping parameter (l1sort)
     var sortedData = getNestedData(church_data, dataObj.grouping);
@@ -19,8 +19,8 @@ function show_comparison_query(dataObj, id) {
 	// For each of our l1sort groups, display a histogram for the churches in that group
 	sortedData.forEach(function(group) {
 
-		var xTickInterval = (xMax - xMin) / 10;
-		var yTickInterval = (yMax - yMin) / 10;
+		var xTickInterval = Math.ceil((xMax - xMin) / 10);
+		var yTickInterval = Math.ceil((yMax - yMin) / 10);
 
 		// x and y are our scaling functions to convert from data space to screen space
 		var x = d3.scale.linear()
@@ -28,10 +28,13 @@ function show_comparison_query(dataObj, id) {
 		var y = d3.scale.linear()
 			.domain([yMin, yMax]);
 
+		var p1Name = $(id + ' .first-item a')[0].innerHTML;
+		var p2Name = $(id + ' .first-item a')[1].innerHTML;
+
 		// Initialize the chart region
 		var chart = initChart(id, 			// CSS selector
 							  dataObj,
-							  group.key,	// Title of our current (l1sort) group 
+							  make_title(id, p1Name + " vs. " + p2Name, group.key),
 							  x, y, 		// Scaling functions
 							  d3.range(xMin, xMax, xTickInterval), 	// x-axis tick values
 							  function(tick) {							// x-axis tick formatting
@@ -42,13 +45,26 @@ function show_comparison_query(dataObj, id) {
 								return d3.format(",.0f")(tick);
 							  });
 
+		function display_history(data){
+			d3.select('.chart-element.history').remove();
+			var line = d3.svg.line()
+				.x(function(d) { return x(d[property1]); })
+				.y(function(d) { return y(d[property2]); });
+			chart.object.append("path")
+				.datum(data)
+				.attr("class", "chart-element history")
+				.attr("d", line);	
+
+			display_props_over_time(data, [property1, property2], id);
+		}
+
 		// Create a point for each data element
 		var points = chart.object.selectAll("circle")
 			.data(group.values)
 			.enter().append("circle")
 			.attr("class", "chart-element point")
-			.attr("cx", function(el) { return x(el[property0]); })
-			.attr("cy", function(el) { return y(el[property1]); })
+			.attr("cx", function(el) { return x(el[property1]); })
+			.attr("cy", function(el) { return y(el[property2]); })
 			.attr("r", 3)
 			.on("click", function(data) {
 				$(id + " .selected")
@@ -57,11 +73,35 @@ function show_comparison_query(dataObj, id) {
 				$(this)
 					.attr("class", "chart-element point selected")
 					.attr("r", 7);
-				display_props_over_time([data], [property0, property1], id);
+				$.post("/get_history.json", 
+					   {id: data.id, property1: property1, property2: property2, year: data.year},
+					   display_history)
 			});
+
+		// Compute the median line and draw it on the graph
+		var trend = least_squares(group.values, property1, property2);
+		chart.object.append("line")
+			.attr("x1", x(0))
+			.attr("x2", x(xMax))
+			.attr("y1", y(trend.b))
+			.attr("y2", y(trend.m * xMax + trend.b))
+			.attr("stroke-width", 1)
+			.attr("stroke-dasharray", "10,10")
+			.attr("stroke", "black");
+
+		chart.object.append("text")
+			.attr("x", x(xMax / 2))
+			.attr("y", 25)
+			.attr("class", "info")
+			.attr("text-anchor", "middle")
+			.style("font-size", "16px")
+			.html("r^2 = " + d3.format(".2f")(trend.rsq));
 	});
 }
 
+/*function display_history() {
+	display_props_over_time([data], [property1, property2], id);
+}*/
 
 
 

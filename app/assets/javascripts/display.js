@@ -49,18 +49,13 @@ function initChart(id, dataObj, title, xScale, yScale, xTickValues, xTickFormat,
 			.call(yAxis);
 	}
 
-	// Add a title to the chart
-	var titleText = $(id + ' .leaf-item.selected').text();
-	if ($(id + ' .data-grouping').val() == 'District') titleText += ' for district ' + title;
-	else if ($(id + ' .data-grouping').val() == 'City') titleText += ' for ' + title;
-
 	chart.append("text")
 		.attr("x", width / 2)
 		.attr("y", 0)
 		.attr("text-anchor", "middle")
 		.style("font-size", "20px")
 		.style("font-weight", "lighter")
-		.text(titleText);
+		.text(title);
 
 	// Return the chart object along with its width and height
     return {object: chart, width: width, height: height};
@@ -75,7 +70,33 @@ function initChart(id, dataObj, title, xScale, yScale, xTickValues, xTickFormat,
  * group - data groups by district/city/etc.
  */
 function initControls(id, dataObj, chartFn, options) { 
+	var updateValues = function(event, ui) {
+		if (ui) {
+			var axisName = $(ui.handle).parent().attr('class').split(' ')[0].substr(0,7);
+			var min = $(id + ' .axis-absolute').prop('checked') ? ui.values[0] :
+				Math.pow(2, ui.values[0]) * 100 + '%';
+			var max = $(id + ' .axis-absolute').prop('checked') ? ui.values[1] :
+				Math.pow(2, ui.values[1]) * 100 + '%';
+			$(id + ' .' + axisName + 'min').text(min);
+			$(id + ' .' + axisName + 'max').text(max);
+			return;
+		}
+
+		var xValues = $(id + ' .x-axis-range').slider('option', 'values').slice(0);
+		var yValues = $(id + ' .y-axis-range').slider('option', 'values').slice(0);
+		if (!$(id + ' .axis-absolute').prop('checked')) {
+			xValues[0] = Math.pow(2, xValues[0]) * 100 + '%';
+			xValues[1] = Math.pow(2, xValues[1]) * 100 + '%';
+			yValues[0] = Math.pow(2, yValues[0]) * 100 + '%';
+			yValues[1] = Math.pow(2, yValues[1]) * 100 + '%';
+		}
+		$(id + ' .x-axis-min').text(xValues[0]);
+		$(id + ' .x-axis-max').text(xValues[1]);
+		$(id + ' .y-axis-min').text(yValues[0]);
+		$(id + ' .y-axis-max').text(yValues[1]);
+	};
 	var redrawChart = function() {
+		updateValues();
 		$(id + ' .query-results').empty();
 		window[chartFn](dataObj, id);
 	};
@@ -83,21 +104,22 @@ function initControls(id, dataObj, chartFn, options) {
 	// Show the controls
 	$(id + ' .query-controls').show();
 
-	// The y-axis slider controls the minimum and maximum values on the y-axis.
-    $(id + ' .axis-range-1, ' + id + ' .axis-range-2').slider({
+	// The axis slider controls the minimum and maximum values on the axes.
+    $(id + ' .x-axis-range, ' + id + ' .y-axis-range').slider({
         range: true,
         min: -10,
         max: 10,
         values: [ -4, 4],
-        slide: redrawChart,
+		slide: updateValues,
+        stop: redrawChart,
     });
-	if (options && typeof(options.y_axis_range) != "undefined" && options.range === false) {
-		$(id + ' .axis-range-1').slider('option', 'disabled', true);
-		$(id + ' .axis-range-1').parent().css('color', 'lightgrey');
+	if (options && typeof(options.x_axis_range) != "undefined" && options.x_axis_range === false) {
+		$(id + ' .x-axis-range').slider('option', 'disabled', true);
+		$(id + ' .x-axis-range').parent().css('color', 'lightgrey');
 	}
-	if (options && typeof(options.x_axis_range) != "undefined" && options.range === false) {
-		$(id + ' .axis-range-2').slider('option', 'disabled', true);
-		$(id + ' .axis-range-2').parent().css('color', 'lightgrey');
+	if (options && typeof(options.y_axis_range) != "undefined" && options.y_axis_range === false) {
+		$(id + ' .y-axis-range').slider('option', 'disabled', true);
+		$(id + ' .y-axis-range').parent().css('color', 'lightgrey');
 	}
 
 	// Update the slider scales if we toggle the checkbox
@@ -114,6 +136,7 @@ function initControls(id, dataObj, chartFn, options) {
 		$(id + ' .axis-absolute').attr('disabled', true);
 		$(id + ' .axis-absolute').parent().css('color', 'lightgrey');
 	}
+	updateValues();
 
 	// The global l1sort function controls how data is grouped by the getNestedData function
 	$(id + ' .data-grouping').change(function() {
@@ -178,19 +201,26 @@ function changeSliderScales(id, dataObj) {
 	// If absolute values are used, it is capped between 0 and the maximum value
 	//   for this property
 	if (useAbsScale) {
-		$(id + ' .axis-range-1').slider('option', {
-			min: dataObj.minValues[0], 
-			max: dataObj.maxValues[0], 
-			values: [dataObj.minValues[0], dataObj.maxValues[0]],
-		});
-		$(id + ' .axis-range-2').slider('option', {
-			min: dataObj.minValues[1],
-			max: dataObj.maxValues[1],
-			values: [dataObj.minValues[1], dataObj.maxValues[0]],
-		});
+		for (var i = 0; i < dataObj.minValues.length; i++) {
+			var min = dataObj.minValues[i];
+			var max = dataObj.maxValues[i];
+			var sliderID;
+			if (i == 0) {
+				sliderID = $(id + ' .x-axis-range').slider('option', 'disabled') ? 
+					id + ' .y-axis-range' :
+					id + ' .x-axis-range';
+			} else sliderID = id + ' .y-axis-range';
+
+				
+			$(sliderID).slider('option', {
+				min: min,
+				max: max,
+				values: [min, max],
+			});
+		}
 	}
 	else {
-		$(id + ' .axis-range-1, ' + id + ' .axis-range-2').slider('option', {
+		$(id + ' .x-axis-range, ' + id + ' .y-axis-range').slider('option', {
 			max: 10, 
 			min: -10, 
 			values: [-4, 4],
@@ -269,5 +299,11 @@ function display_props_over_time(data, properties, id) {
     });
     details.append("</table>");
     details.append("</div>");
+}
+
+function make_title(id, text, key) {
+	if ($(id + ' .data-grouping').val() == 'District') text += ' for district ' + key;
+	else if ($(id + ' .data-grouping').val() == 'City') text += ' for ' + key;
+	return text;
 }
 

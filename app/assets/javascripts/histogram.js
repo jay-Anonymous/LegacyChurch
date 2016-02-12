@@ -31,10 +31,12 @@ function show_histogram_query(dataObj, id) {
 		var y = d3.scale.linear()
 			.domain([0, d3.max(binnedData, function(d) { return d.y; })]);
 
+		var pName = $(id + ' .first-item a')[0].innerHTML;
+
 		// Initialize the chart region
 		var chart = initChart(id, 			// CSS selector
 							  dataObj,
-							  group.key,	// Title of our current (l1sort) group 
+							  make_title(id, pName, group.key),	// Title of our current (l1sort) group 
 							  x, y, 		// Scaling functions
 							  d3.range(minValue, maxValue, binWidth), 	// x-axis tick values
 							  function(tick) {							// x-axis tick formatting
@@ -71,6 +73,7 @@ function show_histogram_query(dataObj, id) {
 			.attr("x", x(minValue + binWidth) / 2)
 			.attr("y", -10)
 			.attr("dy", ".75em")
+			.attr("class", "info")
 			.text(function(d) { return d.y; });
 
 		// Compute the median line and draw it on the graph
@@ -87,7 +90,7 @@ function show_histogram_query(dataObj, id) {
 		chart.object.append("text")
 			.attr("x", x(med_value) + 5)
 			.attr("y", 25)
-			.attr("class", "chart-element median")
+			.attr("class", "median info")
 			.attr("text-anchor", "start")
 			.text(d3.format(",.0f")(med_value));
 	});

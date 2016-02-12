@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
 
   get "/", to: 'main#index', as: "root"
-  post "/respond_to", to: "main#respond_to"
+  post "/exec_query", to: "main#exec_query"
+  post "/get_history", to: "main#get_history"
 
   # You can have the root of your site routed with "root"
   resources :churches, only: [:index, :show]
