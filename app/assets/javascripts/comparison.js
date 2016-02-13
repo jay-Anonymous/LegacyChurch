@@ -73,7 +73,7 @@ function show_comparison_query(dataObj, id) {
 				$(this)
 					.attr("class", "chart-element point selected")
 					.attr("r", 7);
-				$.post("/get_history.json", 
+				$.post(window.location.pathname + "get_history.json", 
 					   {id: data.id, property1: property1, property2: property2, year: data.year},
 					   display_history)
 			});

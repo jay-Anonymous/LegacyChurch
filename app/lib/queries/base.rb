@@ -3,7 +3,7 @@ module Queries
 
 class Base
 	def self.get_all
-		(Dir.glob(File.join(Rails.root, "app", "lib", "queries", "*")).collect { 
+		(Dir.glob(File.join(Rails.root, "app", "lib", "queries", "*")).sort.collect { 
 			|file_path| 
 			basename = File.basename(file_path, '.rb')
 			('Queries::' + basename.camelize).constantize 
