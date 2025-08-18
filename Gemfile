@@ -4,7 +4,7 @@ gem 'capistrano-rails', group: :development
 gem 'capistrano-rbenv', group: :development
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.4'
+gem 'rails', '7.1.5.2'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 # Use SCSS for stylesheets
